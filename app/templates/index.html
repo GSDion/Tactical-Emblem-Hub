@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}Tactical Emblem Hub</title>
+    <style>
+       
+
+        .logo {
+            width: 220px; 
+            height: auto; 
+            display: block;
+            filter: invert(100%) brightness(2) contrast(100%);
+            margin-top: 10px;
+            
+        }
+
+        .logo-container {
+            background-color: rgb(40, 44, 52); /* Set the background color to match your webpage */
+            display: inline-block;   /* Ensure the container only wraps around the image */
+        }
+
+      
+
+       a {
+            color: #d64161;
+            font-size: 3em;
+            
+            text-decoration: none;
+            
+        }
+
+       h1 {
+            font-size: 50px;
+            color:white;
+       }
+       
+       h2 {
+           
+            color:white;
+       }
+
+        hr {
+            border-color: rgb(29, 32, 39);
+        }
+
+        .titles {
+            margin-top: 150px;
+            margin-bottom: 50px;
+            margin-left: 650px;
+            margin-right: 300px;
+           
+        }
+
+        .vl {
+            border-left: 2px groove;
+            border-color: rgb(29, 32, 39);
+            height: 700px;
+            position: absolute;
+            left: 50%;
+            margin-left: 650px;
+            top: 0;
+            bottom: 0;
+        }              
+    </style>
+</head>
+
+
+<body style="background-color:rgb(40, 44, 52);">
+
+    <div class="header">
+
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/Fire_Emblem_series_logo.png') }}" class= "logo" alt="logo">
+        </div>
+
+        <hr>
+    </div>
+
+    <div class="vl"></div>
+
+    <div class="titles">
+        <h1>Tactical Emblem Hub</h1>
+        <h2>Create Your Team!</h2>
+    </div>
+
+
+   
+
+    <!-- <div class="content">
+        {% block content %} {% endblock %}
+    </div> -->
+
+</body>
+</html>
