@@ -3,61 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %} {% endblock %}Tactical Emblem Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.js"></script>
     <style>
-       
 
-        .logo {
-            width: 220px; 
-            height: auto; 
-            display: block;
-            filter: invert(100%) brightness(2) contrast(100%);
-            margin-top: 10px;
-            
+         /* General */
+
+        body {
+            margin: 0;
+            overflow: hidden; 
         }
 
-        .logo-container {
-            background-color: rgb(40, 44, 52); /* Set the background color to match your webpage */
-            display: inline-block;   /* Ensure the container only wraps around the image */
-        }
-
-      
-
-       /* a {
-            color: #d64161;
-            font-size: 3em;
-            text-decoration: none;
-            
-        } */
-
-       h1 {
-            font-size: 50px;
-            color:white;
-            text-align: center;
-       }
-       
-       h2 {
-            margin-top:20px;
-            color:white;
-            text-align: center;
-       }
-
-        hr {
-            border-color: rgb(29, 32, 39);
-        }
-
-        .titles {
-           
-            padding-top: 175px; 
-            /* margin-bottom: 10px; */
-            /* display:flex; */
-            padding-left: 650px;
-            padding-right:350px;
-            position: absolute;
-            z-index: 1;
-           
-        }
-
-        .vl {
+         .vl_right {
             border-left: 2px groove;
             border-color: rgb(29, 32, 39);
             height: 700px;
@@ -77,47 +34,149 @@
             margin-right:10px;
             
         }
+        
+        #fp-nav ul li a span,
+        .fp-slidesNav ul li a span {
+            background: white;
+        }
+
+        .contact_page_title h1,
+        .about_page_title h1 {
+            color:white;
+            text-align: left;
+            padding-top: 80px;
+            padding-left: 50px;
+            font-size: 40px;
+        }
+
+        .vl_middle {
+            border-left: 2px groove;
+            border-color: rgb(29, 32, 39);
+            height: 480px;
+            position: absolute;
+            left: 50%;
+            /* margin-right:10px; */
+            /* margin-left: 650px; */
+            top: 175px;
+            bottom: 0;
+        }   
+
+        /* Title Page */
+        .logo {
+            width: 220px; 
+            height: auto; 
+            display: block;
+            filter: invert(100%) brightness(2) contrast(100%);
+            margin-top: 20px;
+            
+        }
+
+        .logo-container {
+            background-color: rgb(40, 44, 52); /* Set the background color to match the webpage */
+            display: inline-block;   /* Ensure that the container only wraps around the image */
+        }
+
+     
+        .title_page_titles h1 {
+            font-size: 50px;
+            color:white;
+            text-align: center;
+       }
+       
+       .title_page_titles h2 {
+            margin-top:20px;
+            color:white;
+            text-align: center;
+       }
+
+        hr {
+            border-color: rgb(29, 32, 39);
+        }
+
+        .title_page_titles {
+            padding-top: 175px; 
+            /* margin-bottom: 10px; */
+            /* display:flex; */
+            padding-left: 650px;
+            padding-right:350px;
+            position: absolute;
+            z-index: 1;
+           
+        }
+
+        /* About Page */
+        
     </style>
 </head>
 
 
 <body style="background-color:rgb(40, 44, 52);">
+    <div id="fullpage">
 
-    <section id="homepage">
-        
-        <div class="header">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='img/Fire_Emblem_series_logo.png') }}" class= "logo" alt="logo">
+
+        <section id="title_page" class="section active"">
+            
+            <div class="header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/Fire_Emblem_series_logo.png') }}" class= "logo" alt="logo">
+                </div>
+                <hr>
             </div>
-            <hr>
-        </div>
 
-        <div class="vl"></div>
-    
-        <img src="{{ url_for ('static', filename='img/Ike_SSBU.png') }}" class = "ike">
-    
-        <div class="titles">
-            <h1>Tactical Emblem Hub</h1>
-            <h2>Create Your Team!</h2>
-        </div>
+            <div class="vl_right"></div>
+        
+            <img src="{{ url_for ('static', filename='img/Ike_SSBU.png') }}" class = "ike">
+        
+            <div class="title_page_titles">
+                <h1>Tactical Emblem Hub</h1>
+                <h2>Create Your Team!</h2>
+            </div>
 
-    </section>
-
-    <section id="about">
-
-    </section>
-
-    <section id="contact">
-
-    </section>
+        </section>
 
 
+        <section id="about_page" class="section">
+            <div class="vl_right"></div>
 
-   
+          
+
+            <div class="about_page_title">
+                <h1>What is Tactical Emblem Hub?</h1>
+            </div>
+
+            <div class="about_page_body">
+                <div class="vl_middle"></div>
+                <p><p>
+            </div>
+
+        </section>
+
+
+        <section id="contact_page" class="section">
+            <div class="vl_right"></div>
+
+            <div class="footer">
+                
+            </div>
+        </section>
+
+
+    </div>
 
     <!-- <div class="content">
         {% block content %} {% endblock %}
     </div> -->
-
+    
+    <script>
+        new fullpage('#fullpage', {
+            navigation: true,
+            navigationPosition: 'right',
+            showActiveTooltip: true,
+            verticalCentered: false,
+            
+        });
+    </script>
+    
 </body>
+
 </html>
