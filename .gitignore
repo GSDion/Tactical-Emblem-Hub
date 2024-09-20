@@ -2,4 +2,4 @@
 **/__pycache__/ 
 
 # Ignore config file b/c of key
-/config.py
+\config.py
