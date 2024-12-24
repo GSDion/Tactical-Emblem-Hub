@@ -1,5 +1,9 @@
 # Byte-compiled / optimized / DLL files
-**/__pycache__/ 
+**/__pycache__/
 
 # Ignore config file b/c of key
 \config.py
+
+#Ignore env folder
+.venv
+
