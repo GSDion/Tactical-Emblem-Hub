@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 
+# db and csrf have been defined outside any function or class, so they are accessible globally throughout the application.
 # Initialize SQLAlchemy instance
 db = SQLAlchemy()
 
@@ -9,6 +10,10 @@ db = SQLAlchemy()
 csrf = CSRFProtect()
 
 def create_app():
+    ''' 
+    The db object is linked to the app instance. 
+    This ensures that db knows how to connect to the database using the configuration provided by the app
+    '''
     # Create a new Flask application instance
     app = Flask(__name__)
     
