@@ -25,7 +25,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
     # `Users` ⟶ 1:M ⟶ `UserTeams`
-    user_teams = db.relationship('User_Team', backref='user', lazy=True)
+    user_teams = db.relationship('User_Team', back_populates='user', lazy=True)
+    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
+    image = db.relationship('Image', back_populates='user', uselist=False)
 
 
 # Game Model
@@ -44,10 +46,11 @@ class Game(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
     # `Games` ⟶ 1:M ⟶ `Teams`
-    teams = db.relationship('Team', backref='game', lazy=True)
+    teams = db.relationship('Team',back_populates='game',lazy=True)
     #  `Games` ⟶ 1:M ⟶ `Characters` 
-    characters = db.relationship('Character', backref='game', lazy=True)
-
+    characters = db.relationship('Character',back_populates='game',lazy=True)
+    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
+    image = db.relationship('Image', back_populates='game',uselist=False)
 
 # Team Model
 class Team(db.Model):
@@ -62,11 +65,17 @@ class Team(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    # `Games` ⟶ 1:M ⟶ `Teams`
+    game = db.relationship('Game',back_populates='teams',lazy=True)
     # `Teams` ⟶ 1:M ⟶ `Strategies`
-    strategies = db.relationship('Strategy', backref='team', lazy=True)
+    strategies = db.relationship('Strategy',back_populates='team',lazy=True)
     # Relationship to the intermediate Team_Character model
     # `Teams` ⟶ M:N ⟶ `Characters` (via `TeamCharacters`)
     characters = db.relationship('Team_Character',back_populates='team')
+    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
+    image = db.relationship('Image', back_populates='team', uselist=False)
+    #`Teams` ⟶ 1:M ⟶ `UserTeams`  
+    user_teams = db.relationship('User_Team', back_populates='team', lazy=True)
 
 
 # Character Model
@@ -82,14 +91,18 @@ class Character(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
-     # Relationship to the intermediate Character_Attribute model
-    attributes = db.relationship('Character_Attribute', back_populates='character')
+    # Relationship to the intermediate Character_Attribute model
+    attributes = db.relationship('Character_Attribute', back_populates='characters',lazy=True)
     # Relationship to the intermediate Character_Inventory model
     # # - `Characters` ⟶ M:N ⟶ `InventoryItems` (via `CharacterInventory`)
-    inventory_items = db.relationship('Character_Inventory', back_populates='character')
+    inventory_items = db.relationship('Character_Inventory', back_populates='character',lazy=True)
     # Relationship to the intermediate Team_Character model
     # `Teams` ⟶ M:N ⟶ `Characters` (via `TeamCharacters`)
-    teams = db.relationship('Team_Character',back_populates='character')
+    teams = db.relationship('Team_Character',back_populates='character',lazy=True)
+#  `Games` ⟶ 1:M ⟶ `Characters` 
+    game = db.relationship('Game', back_populates='characters', lazy=True)
+    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
+    image = db.relationship('Image', back_populates='character',uselist=False)
     
     
 
@@ -130,9 +143,6 @@ class Character_Attribute(db.Model):
     character = db.relationship('Character', back_populates='attributes')
     attribute = db.relationship('Attribute', back_populates='characters')
 
-    __table_args__ = (
-    db.PrimaryKeyConstraint('character_id', 'attribute_id'),
-    )
 
 
 
@@ -152,6 +162,8 @@ class Inventory_Item(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
     # Relationship to the intermediate Character_Inventory model
     characters = db.relationship('Character_Inventory',back_populates='inventory_item')
+    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
+    image = db.relationship('Image', back_populates='inventory_item')
     
 
 
@@ -173,9 +185,7 @@ class Character_Inventory(db.Model):
     # - `Characters` ⟶ M:N ⟶ `InventoryItems` (via `CharacterInventory`)
     character = db.relationship('Character', back_populates='inventory_items')
     inventory_item = db.relationship('Inventory_Item', back_populates='characters')
-    __table_args__ = (
-    db.PrimaryKeyConstraint('character_id', 'item_id'),
-    )
+
 
 
 # User Teams Model
@@ -191,6 +201,10 @@ class User_Team(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    # `Users` ⟶ 1:M ⟶ `UserTeams`
+    user = db.relationship('User', back_populates='user_teams')
+    # `Teams` ⟶ 1:M ⟶ `UserTeams`  
+    team = db.relationship('Team', back_populates='user_teams')
 
 
 # Team Characters Model
@@ -209,9 +223,7 @@ class Team_Character(db.Model):
     # `Teams` ⟶ M:N ⟶ `Characters` (via `TeamCharacters`)
     team = db.relationship('Team', back_populates='characters')
     character = db.relationship('Character', back_populates='teams')
-    __table_args__ = (
-    db.PrimaryKeyConstraint('team_id', 'character_id'),
-    )
+
 
 
 # Strategy Model
@@ -227,6 +239,8 @@ class Strategy(db.Model):
     description = db.Column(db.String(200), unique=False, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+     # `Teams` ⟶ 1:M ⟶ `Strategies`
+    team = db.relationship('Team',back_populates='strategies',lazy=True)
 
 
 # Image Model
@@ -245,11 +259,11 @@ class Image(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    users = db.relationship('User', backref='image', uselist=False)
-    games = db.relationship('Game', backref='image', uselist=False)
-    teams = db.relationship('Team', backref='image', uselist=False)
-    characters = db.relationship('Character', backref='image', uselist=False)
-    inventory_items = db.relationship('Inventory_Item', backref='image', uselist=False)
+    user = db.relationship('User', back_populates='image', uselist=False)
+    game = db.relationship('Game', back_populates='image', uselist=False)
+    team = db.relationship('Team', back_populates='image', uselist=False)
+    character = db.relationship('Character', back_populates='image', uselist=False)
+    inventory_item = db.relationship('Inventory_Item', back_populates='image', uselist=False)
 
     # Polymorphic relationship for ORM queries
     #When querying:
