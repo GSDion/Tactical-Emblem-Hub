@@ -6,6 +6,10 @@ from __init__ import db
 TO DO:
 - DOCUMENT HOW RELATIONSHIPS ARE DEFINED IN CODE (Tactical_Emblem_Hub_Notes.md)
 - use either back_populates OR backrefs. Not both.
+- Delete a character --> inventory_items deleted? (Dont do if making pre-made inventory_items)
+- Delete a character --> attributes deleted (Dont do if making pre-made attributes)
+- Delete a game --> characters deleted
+- Automated tests for database
 '''
 # User Model
 class User(db.Model):
@@ -27,7 +31,8 @@ class User(db.Model):
     # `Users` ⟶ 1:M ⟶ `UserTeams`
     user_teams = db.relationship('User_Team', back_populates='user', lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    image = db.relationship('Image', back_populates='user', uselist=False)
+    # Deleting a user will delete the image associated with the user
+    image = db.relationship('Image', back_populates='user', uselist=False,cascade="all, delete-orphan")
 
 
 # Game Model
@@ -50,7 +55,8 @@ class Game(db.Model):
     #  `Games` ⟶ 1:M ⟶ `Characters` 
     characters = db.relationship('Character',back_populates='game',lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    image = db.relationship('Image', back_populates='game',uselist=False)
+    # Deleting a game will delete the image associated with the game
+    image = db.relationship('Image', back_populates='game',uselist=False,cascade="all, delete-orphan")
 
 # Team Model
 class Team(db.Model):
@@ -73,7 +79,8 @@ class Team(db.Model):
     # `Teams` ⟶ M:N ⟶ `Characters` (via `TeamCharacters`)
     characters = db.relationship('Team_Character',back_populates='team')
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    image = db.relationship('Image', back_populates='team', uselist=False)
+    # Deleting a team will delete the image associated with the team
+    image = db.relationship('Image', back_populates='team', uselist=False,cascade="all, delete-orphan")
     #`Teams` ⟶ 1:M ⟶ `UserTeams`  
     user_teams = db.relationship('User_Team', back_populates='team', lazy=True)
 
@@ -102,7 +109,8 @@ class Character(db.Model):
 #  `Games` ⟶ 1:M ⟶ `Characters` 
     game = db.relationship('Game', back_populates='characters', lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    image = db.relationship('Image', back_populates='character',uselist=False)
+    # Deleting a character will delete the image associated with the character
+    image = db.relationship('Image', back_populates='character',uselist=False,cascade="all, delete-orphan")
     
     
 
@@ -163,7 +171,8 @@ class Inventory_Item(db.Model):
     # Relationship to the intermediate Character_Inventory model
     characters = db.relationship('Character_Inventory',back_populates='inventory_item')
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    image = db.relationship('Image', back_populates='inventory_item')
+    # Deleting an inventory_item will delete the image associated with the inventory_item
+    image = db.relationship('Image', back_populates='inventory_item',cascade="all, delete-orphan")
     
 
 
@@ -240,7 +249,8 @@ class Strategy(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
     updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
      # `Teams` ⟶ 1:M ⟶ `Strategies`
-    team = db.relationship('Team',back_populates='strategies',lazy=True)
+     # Deleting a team will delete a strategy
+    team = db.relationship('Team',back_populates='strategies',lazy=True,cascade="all, delete-orphan")
 
 
 # Image Model
