@@ -1,0 +1,95 @@
+
+body {
+    margin: 0;
+    overflow: hidden; 
+}
+
+ .vl_right {
+    border-left: 2px groove;
+    border-color: rgb(29, 32, 39);
+    height: 700px;
+    position: absolute;
+    left: 92%;
+    margin-right:10px;
+    /* margin-left: 650px; */
+    top: 0;
+    bottom: 0;
+}          
+
+.ike {
+    z-index:0;
+    position: absolute;
+    padding-top: 140px;
+    padding-left:400px;
+    margin-right:10px;
+    
+}
+
+#fp-nav ul li a span,
+.fp-slidesNav ul li a span {
+    background: white;
+}
+
+.contact_page_title h1,
+.about_page_title h1 {
+    color:white;
+    text-align: left;
+    padding-top: 80px;
+    padding-left: 50px;
+    font-size: 40px;
+}
+
+.vl_middle {
+    border-left: 2px groove;
+    border-color: rgb(29, 32, 39);
+    height: 480px;
+    position: absolute;
+    left: 50%;
+    /* margin-right:10px; */
+    /* margin-left: 650px; */
+    top: 175px;
+    bottom: 0;
+}   
+
+/* Title Page */
+.logo {
+    width: 220px; 
+    height: auto; 
+    display: block;
+    filter: invert(100%) brightness(2) contrast(100%);
+    margin-top: 20px;
+    
+}
+
+.logo-container {
+    background-color: rgb(40, 44, 52); /* Set the background color to match the webpage */
+    display: inline-block;   /* Ensure that the container only wraps around the image */
+}
+
+
+.title_page_titles h1 {
+    font-size: 50px;
+    color:white;
+    text-align: center;
+}
+
+.title_page_titles h2 {
+    margin-top:20px;
+    color:white;
+    text-align: center;
+}
+
+hr {
+    border-color: rgb(29, 32, 39);
+}
+
+.title_page_titles {
+    padding-top: 175px; 
+    /* margin-bottom: 10px; */
+    /* display:flex; */
+    padding-left: 650px;
+    padding-right:350px;
+    position: absolute;
+    z-index: 1;
+   
+}
