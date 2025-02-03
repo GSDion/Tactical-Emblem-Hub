@@ -1,20 +1,9 @@
 
 body {
     margin: 0;
-    
 }
 
- /* .vl_right {
-    border-left: 2px groove;
-    border-color: rgb(29, 32, 39);
-    height: 700px;
-    position: absolute;
-    left: 92%;
-    margin-right:10px;
-    top: 0;
-    bottom: 0;
-}           */
-
+/* Intro */
 .ike {
     z-index:0;
     position: absolute;
@@ -24,16 +13,26 @@ body {
     
 }
 
-#fp-nav ul li a span,
-.fp-slidesNav ul li a span {
-    background: white;
+.title_page_titles h1 {
+    font-size: 50px;
+    text-align: center;
 }
 
-.contact_page_title h1 {
-    padding-top: 5rem;
-    padding-left: 5rem;
-    font-size: 40px;
+.title_page_titles h2 {
+    margin-top:20px;
+    text-align: center;
 }
+
+.title_page_titles {
+    padding-top: 175px; 
+    padding-left: 650px;
+    padding-right:350px;
+    position: absolute;
+    z-index: 1;
+   
+}
+
+/* About Page */
 .about_page_title h1 {
     padding-top: 40rem;
     padding-left: 5rem;
@@ -50,44 +49,22 @@ body {
     bottom: 0;
 }   
 
-/* Title Page */
-/* .logo {
-    width: 220px; 
-    height: auto; 
-    display: block;
-    filter: invert(100%) brightness(2) contrast(100%);
-    margin-top: 20px;
-    
-} */
-/* 
-.logo-container {
-    background-color: rgb(40, 44, 52); 
-    display: inline-block; 
-} */
-
-
-.title_page_titles h1 {
-    font-size: 50px;
-    text-align: center;
+/* Contact Page */
+.contact_page_title h1 {
+    padding-top: 5rem;
+    padding-left: 5rem;
+    font-size: 40px;
 }
 
-.title_page_titles h2 {
-    margin-top:20px;
-    text-align: center;
-}
+
+
+
 
 hr {
     border-color: rgb(29, 32, 39);
 }
 
-.title_page_titles {
-    padding-top: 175px; 
-    padding-left: 650px;
-    padding-right:350px;
-    position: absolute;
-    z-index: 1;
-   
-}
+
 
 /* Set all "a" elements to white in dark mode*/
 [data-bs-theme=dark] a {
