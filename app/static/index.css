@@ -1,20 +1,19 @@
 
 body {
     margin: 0;
-    overflow: hidden; 
+    
 }
 
- .vl_right {
+ /* .vl_right {
     border-left: 2px groove;
     border-color: rgb(29, 32, 39);
     height: 700px;
     position: absolute;
     left: 92%;
     margin-right:10px;
-    /* margin-left: 650px; */
     top: 0;
     bottom: 0;
-}          
+}           */
 
 .ike {
     z-index:0;
@@ -30,52 +29,50 @@ body {
     background: white;
 }
 
-.contact_page_title h1,
-.about_page_title h1 {
-    color:white;
-    text-align: left;
-    padding-top: 80px;
-    padding-left: 50px;
+.contact_page_title h1 {
+    padding-top: 5rem;
+    padding-left: 5rem;
     font-size: 40px;
 }
-
+.about_page_title h1 {
+    padding-top: 40rem;
+    padding-left: 5rem;
+}
 .vl_middle {
     border-left: 2px groove;
-    border-color: rgb(29, 32, 39);
-    height: 480px;
+
+    height: 32rem; /*480px*/
     position: absolute;
+
     left: 50%;
-    /* margin-right:10px; */
-    /* margin-left: 650px; */
-    top: 175px;
+
+    top: 50rem;
     bottom: 0;
 }   
 
 /* Title Page */
-.logo {
+/* .logo {
     width: 220px; 
     height: auto; 
     display: block;
     filter: invert(100%) brightness(2) contrast(100%);
     margin-top: 20px;
     
-}
-
+} */
+/* 
 .logo-container {
-    background-color: rgb(40, 44, 52); /* Set the background color to match the webpage */
-    display: inline-block;   /* Ensure that the container only wraps around the image */
-}
+    background-color: rgb(40, 44, 52); 
+    display: inline-block; 
+} */
 
 
 .title_page_titles h1 {
     font-size: 50px;
-    color:white;
     text-align: center;
 }
 
 .title_page_titles h2 {
     margin-top:20px;
-    color:white;
     text-align: center;
 }
 
@@ -85,11 +82,55 @@ hr {
 
 .title_page_titles {
     padding-top: 175px; 
-    /* margin-bottom: 10px; */
-    /* display:flex; */
     padding-left: 650px;
     padding-right:350px;
     position: absolute;
     z-index: 1;
    
+}
+
+/* Set all "a" elements to white in dark mode*/
+[data-bs-theme=dark] a {
+    color: var(--bs-light);
+}
+
+/* Set all "a" elements to black in light mode*/
+[data-bs-theme=light] a {
+    color: var(--bs-dark);
+}
+
+/* Set hover of all "a" elements to red */
+[data-bs-theme="dark"] a:hover,
+[data-bs-theme="light"] a:hover {
+    color: var(--bs-red);
+}
+
+/* set login button to have white border and white text in dark mode */
+[data-bs-theme="dark"] button.login-custom {
+    color: var(--bs-light);
+    border: var(--border-light);
+
+}
+/* set login button to have black border and black text in light mode */
+[data-bs-theme=light] button.login-custom {
+    color: var(--bs-dark);
+    border: var(--border-dark);
+}
+/* set sign up button to have red background and border in both light and dark mode */
+[data-bs-theme="light"] button.signup-custom,
+[data-bs-theme="dark"] button.signup-custom {
+    background-color: var(--bs-red);
+    border: var(--border-dark);
+}
+
+
+/* set login button to have red hover */
+[data-bs-theme="light"] button:hover.login-custom,
+[data-bs-theme="dark"] button:hover.login-custom {
+    background-color:var(--bs-red);
+}
+
+/* Change clipboard icon to black in light mode*/
+[data-bs-theme="light"] img.clipboard-solid {
+    filter: invert(0%) brightness(15%);
 }
