@@ -8,14 +8,14 @@
 ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
 ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) 
 ![JavaScript](https://img.shields.io/badge/Javascript-ffdf2b?style=for-the-badge&logo=Javascript&logoColor=white)
-<!--BootStrap-->
+![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
 <!--SQLAlchemy-->
-<!--SQLite-->
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
-## Features
-- Signup
+## Current Features
+<!-- - Signup
 - Login
-- Create a team (Every team is associated with a game, strategy and a chosen variety of characters. The process goes: game --> team --> characters --> strategy)
+- Create a team (Every team is associated with a game, strategy and a chosen variety of characters. The process goes: game, team, characters, strategy) -->
 
 ## Project Roadmap
 - [ ] Homepage
@@ -23,7 +23,7 @@
 - [ ] Login
 - [ ] Signup
 - [ ] Creation of Teams
-- [ ] Collaboration
+- [ ] Collaborative teams 
 
 
 ## Screenshots
