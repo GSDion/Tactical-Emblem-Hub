@@ -135,29 +135,34 @@ hr {
 
     /* About Page */
     .about_page_title h1 {
-        padding-top: 40rem;
-        padding-left: 5rem;
+        padding-top: 10rem;
+        padding-left: 0rem;
+        text-align: center;
     }
 
     .about_page_body p {
-
-        padding-top: 10rem;
-        
-      
+        padding-top: 5rem;
+        padding-left:2rem;
+        padding-right:2rem;
         font-size:1.2rem;
-        grid-column: 1 / 2;
+
     }
+
     .about_page_body {
-        display: grid;
-        grid-template-columns: repeat(2, 0.1fr);
-       gap:0.2rem;
+        display: flex;
+        flex-direction: column;
     }
+
     .ike-standin {
-        /* padding-right:40rem;
-        height: auto; 
-        position: absolute; */
         max-width: 100%; 
-        grid-column: 2 / 2;
+    }
+
+    #about_paragraph {
+        order:2;
+    }
+
+    #ike-standin {
+        order:1;
     }
 
 }
