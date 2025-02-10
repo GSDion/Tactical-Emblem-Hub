@@ -4,12 +4,12 @@ from __init__ import db
 
 '''
 TO DO:
-- DOCUMENT HOW RELATIONSHIPS ARE DEFINED IN CODE (Tactical_Emblem_Hub_Notes.md)
-- use either back_populates OR backrefs. Not both.
-- Delete a character --> inventory_items deleted? (Dont do if making pre-made inventory_items)
-- Delete a character --> attributes deleted (Dont do if making pre-made attributes)
-- Delete a game --> characters deleted
-- Automated tests for database
+- [ ] DOCUMENT HOW RELATIONSHIPS ARE DEFINED IN CODE (Tactical_Emblem_Hub_Notes.md) (Ongoing...)
+- [x] use either back_populates OR backrefs. Not both. (decided on back_populates)
+- [ ] Delete a character --> inventory_items deleted? (Dont do if making pre-made inventory_items)
+- [ ] Delete a character --> attributes deleted (Dont do if making pre-made attributes)
+- [ ] Delete a game --> characters deleted
+- [ ] Automated tests for database
 '''
 # User Model
 class User(db.Model):
@@ -59,6 +59,7 @@ class Game(db.Model):
     image = db.relationship('Image', back_populates='game',uselist=False,cascade="all, delete-orphan")
 
 # Team Model
+# ADD OPTIONAL MAP NAME ATTRIBUTES?
 class Team(db.Model):
     __tablename__ = 'team'
     # - `team_id` (Primary Key)
