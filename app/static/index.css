@@ -24,6 +24,9 @@ body {
     font-size: 3rem;
     
 }
+.custom-login-signup-buttons {
+    justify-content:end !important; 
+}
 
 /* About Page */
 .about_page_title h1 {
@@ -155,6 +158,10 @@ hr {
 
     .ike-standin {
         max-width: 100%; 
+        /* margin:auto;
+        grid-row: 1 / 1; */
+        display:block;
+        margin:0 auto;
     }
 
     #about_paragraph {
