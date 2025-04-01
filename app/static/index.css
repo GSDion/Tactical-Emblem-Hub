@@ -1,22 +1,47 @@
 
+/* TO DO
+- [ ] Make each page fullscreen (intro, about)
+- [x] Keep login/sign-up buttons to left of full-screen page while including login/sign-up buttons in mobile navbar (DONE)
+- [ ] Fix navbar links 
+- [ ] Add custom image for about page
+- [ ] Create signup page
+- [ ] Create login page
+- [ ] implement serverside signup
+- [ ] implement serverside login
+- [ ] once finished with homepage, add card to personal website 
+- [x] move title image/logo slightly to the left
+
+*/ 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
+    height:100%;
+    width:100%;
+    padding:0;
 }
 
 /* Intro */
 /* Default (Laptops & Larger Screens) */
+#title_page {
+    height:100%;
+    width:100%;
+}
+
 .ike {
     max-width: 50%; 
     height: auto; 
     position: absolute;
-    left: 30%; /* More to the left */
-    top: 15rem; 
+    left: 22%; /* More to the left */
+    top: 13rem; 
 }
 
 .title_page_titles {
     position: absolute;
-    left: 45%; /* Moves the text onto the right side of the image */
-    top: 20rem; 
+    left: 38%; /* Moves the text onto the right side of the image */
+    top: 18rem; 
     z-index: 1; /* Above the image */
     text-align: left;
 }
@@ -29,6 +54,11 @@ body {
 }
 
 /* About Page */
+#about_page {
+    height:100%;
+    width:100%;
+}
+
 .about_page_title h1 {
     padding-top: 40rem;
     padding-left: 5rem;

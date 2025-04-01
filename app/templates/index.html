@@ -17,54 +17,46 @@
 
         <section id="title_page" class="section active">
             <div class="container-fluid">
-                <nav class="navbar navbar-expand-lg ">
+                <nav class="navbar navbar-expand-lg">
                     <div class="container-fluid">
+                        <!-- Logo -->
+                        <a href="/" class="navbar-brand">
+                            <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid" alt="clipboard" width="40" height="24">
+                        </a>
+                
+                        <!-- Navbar Toggler (for Mobile) -->
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                
+                        <!-- Navbar Content -->
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <div class="d-flex flex-column flex-lg-row w-100 align-items-center justify-content-between">
+                                <!-- Centered Nav Links -->
+                                <ul class="navbar-nav mx-auto text-center">
+                                    <li class="nav-item">
+                                        <a href="/" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Home</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href=#about_page class="nav-link px-2" >About</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="/" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">FAQs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#contact_page" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Contact</a>
+                                    </li>
+                                </ul>
+                
+                                <!-- Right-Aligned Login & Signup Buttons -->
+                                <div class="d-flex flex-column flex-lg-row align-items-center mt-3 mt-lg-0">
+                                    <button type="button" class="btn btn-outline-primary me-2 login-custom" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Login</button>
+                                    <button type="button" class="btn btn-primary signup-custom" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Sign-up</button>
+                                </div>
 
-                    <!-- Logo -->
-                    <a href="/" class="navbar-brand">
-                        <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid" alt="clipboard" width="40" height="24">
-                    </a>
-                
-                    <!-- Navbar Toggler (for mobile screens) -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                
-                    <!-- Navbar Links -->
-                    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a href="/" class="nav-link px-2 link-secondary fs-5 fs-md-6 fs-sm-7">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url_for('.index', _anchor='about_page') }}" class="nav-link px-2 fs-5 fs-md-6 fs-sm-7">About</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/" class="nav-link px-2 fs-5 fs-md-6 fs-sm-7">FAQs</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#contact_page" class="nav-link px-2 fs-5 fs-md-6 fs-sm-7">Contact</a>
-                            </li>
- 
-                        </ul>
-                        
-                        <!-- Login & Signup Buttons -->
-                        <!-- <div class="d-lg-flex d-block text-center justify-content-lg-end mt-3 mt-lg-0">
-                            <button type="button" class="btn btn-outline-primary me-2 login-custom">Login</button>
-                            <button type="button" class="btn btn-primary signup-custom">Sign-up</button>
-                        </div> -->
-                    
-                        <!-- Login & Signup Buttons -->
-                        <div class="d-flex mt-3 mt-lg-0 custom-login-signup-buttons">
-                            <button type="button" class="btn btn-outline-primary me-2 login-custom">Login</button>
-                            <button type="button" class="btn btn-primary signup-custom">Sign-up</button>
-                        </div>
-                    </div>
-                    <!-- Login & Signup Buttons -->
-                        <!-- <div class="d-flex justify-content-center justify-content-lg-end mt-3 mt-lg-0 custom-login-signup-buttons">
-                            <button type="button" class="btn btn-outline-primary me-2 login-custom">Login</button>
-                            <button type="button" class="btn btn-primary signup-custom">Sign-up</button>
-                        </div> -->
+                            </div> <!--class="d-flex flex-column flex-lg-row w-100 align-items-center justify-content-between"-->
+                        </div> <!--class="collapse navbar-collapse" OR Navbar Content-->
+                    </div> <!--class="container-fluid"-->
                 </nav>
             </div>
             
@@ -78,7 +70,7 @@
         </section>
 
 
-        <section id="about_page" class="section">
+        <div id="about_page" class="section">
             <div class="vl_right"></div>
 
             <div class="about_page_title">
@@ -95,7 +87,7 @@
                 
             </div>
 
-        </section>
+        </div>
 
 
         <section id="contact_page" class="section">
