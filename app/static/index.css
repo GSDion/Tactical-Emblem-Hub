@@ -59,7 +59,7 @@ body {
     width:100%;
 }
 
-.about_page_title h1 {
+#about_page_title h1 {
     padding-top: 40rem;
     padding-left: 5rem;
 }
@@ -94,11 +94,11 @@ body {
 }
 
 /* Contact Page */
-.contact_page_title h1 {
+/* .contact_page_title h1 {
     padding-top: 5rem;
     padding-left: 5rem;
     font-size: 40px;
-}
+} */
 
 hr {
     border-color: rgb(29, 32, 39);
@@ -167,7 +167,7 @@ hr {
     }
 
     /* About Page */
-    .about_page_title h1 {
+    #about_page_title h1 {
         padding-top: 10rem;
         padding-left: 0rem;
         text-align: center;
