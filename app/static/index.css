@@ -117,7 +117,7 @@ hr {
 /* Set hover of all "a" elements to red */
 [data-bs-theme="dark"] a:hover,
 [data-bs-theme="light"] a:hover {
-    color: var(--bs-red);
+    color: #cc5147;
 }
 
 /* set login button to have white border and white text in dark mode */
@@ -134,7 +134,7 @@ hr {
 /* set sign up button to have red background and border in both light and dark mode */
 [data-bs-theme="light"] button.signup-custom,
 [data-bs-theme="dark"] button.signup-custom {
-    background-color: var(--bs-red);
+    background-color: #cc5147;
     border: var(--border-dark);
 }
 
@@ -142,7 +142,7 @@ hr {
 /* set login button to have red hover */
 [data-bs-theme="light"] button:hover.login-custom,
 [data-bs-theme="dark"] button:hover.login-custom {
-    background-color:var(--bs-red);
+    background-color:#cc5147;
 }
 
 /* Change clipboard icon to black in light mode*/
