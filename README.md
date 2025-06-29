@@ -19,10 +19,19 @@
 
 ## Project Roadmap
 - [ ] Homepage
+    - [ ] Fix header links
+    - [ ] Find photo for about section
 - [ ] Contact/FAQ Page
 - [ ] Login
+    - [x] Implement frontend
+    - [ ] Implement backend
 - [ ] Signup
+    - [x] Implement frontend
+    - [ ] Implement backend
 - [ ] Creation of Teams
+    - [ ] Create teams
+    - [ ] Edit teams
+    - [ ] Delete teams
 - [ ] Collaborative teams 
 
 
