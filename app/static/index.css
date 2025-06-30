@@ -203,6 +203,11 @@ hr {
         order:1;
     }
 
+    /* Check if #about_page works */
+    #title_page {
+        padding-bottom: 10rem;
+    }
+
 }
 
 /* Phones (Same as Tablets, But Smaller) */
@@ -217,5 +222,10 @@ hr {
 
     .title_page_titles h2 {
         font-size: 1.5rem; 
+    }
+
+    /* Check if #about_page works */
+    #title_page {
+        padding-bottom: 5rem;
     }
 }

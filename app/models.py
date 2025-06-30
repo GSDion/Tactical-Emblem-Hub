@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 from app.__init__ import db
 from extensions import db
+from flask_login import UserMixin
 
 '''
 TO DO:
@@ -13,7 +14,7 @@ TO DO:
 - [ ] Automated tests for database
 '''
 # User Model
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'user'
     # `user_id` (Primary Key)
     # - `username`

@@ -4,6 +4,12 @@
 # Ignore config file b/c of key
 \config.py
 
-#Ignore env folder
+# Ignore env folder
 .venv
 
+# Ignore database
+*.sqlite
+*.sqlite3
+instance/*.sqlite
+instance/*.sqlite3
+db.sqlite

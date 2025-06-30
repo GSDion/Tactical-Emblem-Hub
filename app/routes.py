@@ -1,13 +1,13 @@
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, flash
 from flask import redirect, url_for
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import re
 # Import schemas
 from .models import User
-# Dont need this, just SQLALchemy for qeurying 
-# from app.database import *
 from flask import Blueprint
+# db and csrf variables
 from extensions import db
+from flask_login import login_user
 
 bp = Blueprint('main', __name__)
 
@@ -25,19 +25,27 @@ def signup():
         email = request.form.get("email")
 
         if not (username and password and email and confirm_password):
-            return render_template("signup.html", message="All fields are required.")
+            flash("All fields are required.")
+            return render_template("users/signup.html")
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            return render_template("signup.html", message="Invalid email address!")
+            flash("Invalid email address!")
+            return render_template("users/signup.html")
         elif not re.match(r'[A-Za-z0-9]+', username):
-            return render_template("signup.html", message="Username must contain only letters and numbers!")
+            flash("Username must contain only letters and numbers!")
+            return render_template("users/signup.html")
         elif password != confirm_password:
-            return render_template("signup.html", message="Your password fields do not match!")
+            flash("Your password fields do not match!")
+            return render_template("users/signup.html")
 
         # Check if username or email already exists
         if User.query.filter_by(username=username).first():
-            return render_template("signup.html", message="Username already taken!")
+            flash("Username already taken!")
+            return render_template("users/signup.html")
+           
         if User.query.filter_by(email=email).first():
-            return render_template("signup.html", message="Email already registered!")
+            flash("Email already registered!")
+            return render_template("users/signup.html")
+           
 
         # Hash the password and create new user with SQLAlchemy
         hashed_password = generate_password_hash(password)
@@ -54,24 +62,33 @@ def signup():
             return redirect("/login")
         except Exception as e:
             db.session.rollback()
-            return render_template("signup.html", message="An error occurred. Please try again.")
-
+            flash("An error occurred. Please try again.")
+            return render_template("users/signup.html")
+        
     return render_template('users/signup.html')
 
 # LOGIN
-@bp.route('/login', methods=["GET"])
+@bp.route('/login', methods=["POST", "GET"])
 def login():
-    # Get username and password data
+    # Get email and password data
+    email = request.form.get('email')
+    password = request.form.get('password')
+    remember = True if request.form.get('remember') else False
 
-    # Check if username exists
+    # Check if email exists
+    user = User.query.filter_by(email=email).first()
 
-    # Match username with hashed_password, check if hashed_password equals entered password
+    # check if hashed_password equals entered password
+    if not user or not check_password_hash(user.password_hash, password):
+        flash("Please check your login details and try again.")
+        return render_template("users/login.html")
+        
 
-    #create a session for the user
+    # User has passed all checks, Create a session and Log the user in 
+    login_user(user, remember=remember)
+    flash("You have been logged in!")
+    return redirect(url_for('main.index'))
 
-
-
-    return render_template('users/login.html')
 
 # LOGOUT
 
@@ -82,6 +99,10 @@ def faq():
 @bp.route('/contact')
 def contact():
     return render_template('contact.html')
+
+@bp.route('/profile')
+def profile():
+    return render_template('profile.html')
 
 # CREATE TEAM
 

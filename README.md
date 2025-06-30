@@ -19,7 +19,8 @@
 
 ## Project Roadmap
 - [ ] Homepage
-    - [ ] Fix header links
+    - [x] Fix header links
+    - [ ] Fix mobile navbar (not currently clickable)
     - [ ] Find photo for about section
 - [ ] Contact/FAQ Page
 - [ ] Login
