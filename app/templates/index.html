@@ -34,29 +34,29 @@
                                 <!-- Centered Nav Links -->
                                 <ul class="navbar-nav mx-auto text-center">
                                     <li class="nav-item">
-                                        <a href="{{ url_for('index',_anchor='title_page') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Home</a>
+                                        <a href="{{ url_for('main.index',_anchor='title_page') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Home</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="{{ url_for('index',_anchor='about_page') }}"  class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">About</a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a href="{{ url_for('faq') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">FAQs</a>
+                                        <a href="{{ url_for('main.index',_anchor='about_page') }}"  class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">About</a>
                                     </li>
 
                                     <li class="nav-item">
-                                        <a href="{{ url_for('contact') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Contact</a>
+                                        <a href="{{ url_for('main.faq') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">FAQs</a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('main.contact') }}" class="nav-link px-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Contact</a>
                                     </li>
                                 </ul>
 
                 
                                 <!-- Right-Aligned Login & Signup Buttons -->
                                 <div class="d-flex flex-column flex-lg-row align-items-center mt-3 mt-lg-0">
-                                    <a href="{{ url_for('login') }}">
+                                    <a href="{{ url_for('main.login') }}">
                                         <button type="button" class="btn btn-outline-primary me-2 login-custom" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Login</button>
                                     <a>
                                     
-                                    <a href="{{ url_for('signup') }}">
+                                    <a href="{{ url_for('main.signup') }}">
                                         <button type="button" class="btn btn-primary signup-custom" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Sign-up</button>
                                     <a>
                                 </div>
@@ -65,7 +65,7 @@
                         </div> <!--class="collapse navbar-collapse" OR Navbar Content-->
 
                         <!-- this works, but buttons in navbar DO NOT -->
-                        <!-- <a href="{{ url_for('index',_anchor='contact_page') }}" >Contact</a> -->
+                        <!-- <a href="{{ url_for('main.index',_anchor='contact_page') }}" >Contact</a> -->
                         
                                     
                     </div> <!--class="container-fluid"-->
@@ -113,10 +113,10 @@
                   </a>
               
                   <ul class="nav col-md-4 justify-content-end">
-                    <li class="nav-item"><a href="{{ url_for('index',_anchor='title_page') }}" class="nav-link px-2 text-body-secondary">Home</a></li>
-                    <li class="nav-item"><a href="{{ url_for('about_section') }}" class="nav-link px-2 text-body-secondary">About</a></li>
-                    <li class="nav-item"><a href="{{ url_for('faq') }}" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-                    <li class="nav-item"><a href="{{ url_for('contact') }}" class="nav-link px-2 text-body-secondary">Contact</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.index',_anchor='title_page') }}" class="nav-link px-2 text-body-secondary">Home</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.about_section') }}" class="nav-link px-2 text-body-secondary">About</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.faq') }}" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+                    <li class="nav-item"><a href="{{ url_for('main.contact') }}" class="nav-link px-2 text-body-secondary">Contact</a></li>
                   </ul>
                 </footer>
               </div>

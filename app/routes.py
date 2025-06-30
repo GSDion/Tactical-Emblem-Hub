@@ -1,73 +1,84 @@
-from flask import render_template, request, redirect, session, current_app as app
+from flask import render_template, request, redirect, session
 from flask import redirect, url_for
 from werkzeug.security import generate_password_hash
 import re
-from config import Config
-# from app import create_app
+# Import schemas
+from .models import User
+# Dont need this, just SQLALchemy for qeurying 
+# from app.database import *
+from flask import Blueprint
+from extensions import db
 
-# Import app?
-# app = create_app()
-app.config.from_object(Config)
-app.config["SECRET_KEY"]
+bp = Blueprint('main', __name__)
 
-
-
-
-@app.route('/')
+@bp.route('/')
 def index():
     return render_template('index.html')
 
 
 # INDEX: title_section
-@app.route('/hero')
+@bp.route('/hero')
 def title_section():
-    return redirect(url_for('index',_anchor='title_page'))
+    return redirect(url_for('main.index',_anchor='title_page'))
 
 # INDEX: about_section
-@app.route('/about')
+@bp.route('/about')
 def about_section():
-    return redirect(url_for('index',_anchor='about_page_title'))
+    return redirect(url_for('main.index',_anchor='about_page_title'))
 
-@app.route('/signup', methods=["GET", "POST"])
+@bp.route('/signup', methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         # Validate form data
-        # MAKE SURE THESE NAMES MATCH THE ONES IN SIGNUP.HTML
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm-password")
         email = request.form.get("email")
 
-
-        if not (username or not password or not email or not confirm_password):
+        if not (username and password and email and confirm_password):
             return render_template("signup.html", message="All fields are required.")
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             return render_template("signup.html", message="Invalid email address!")
         elif not re.match(r'[A-Za-z0-9]+', username):
             return render_template("signup.html", message="Username must contain only letters and numbers!")
-        elif not (password == confirm_password):
+        elif password != confirm_password:
             return render_template("signup.html", message="Your password fields do not match!")
 
-        # Hash the password
+        # Check if username or email already exists
+        if User.query.filter_by(username=username).first():
+            return render_template("signup.html", message="Username already taken!")
+        if User.query.filter_by(email=email).first():
+            return render_template("signup.html", message="Email already registered!")
+
+        # Hash the password and create new user with SQLAlchemy
         hashed_password = generate_password_hash(password)
+        new_user = User(
+            username=username,
+            email=email,
+            password_hash=hashed_password,
+            role="user"  # Automatically assign role "user"
+        )
 
-        # AUTOMATICALLY ASSIGN ROLE "USER"
-        # Store user data in the SQLite database 
-        
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect("/login")
+        except Exception as e:
+            db.session.rollback()
+            return render_template("signup.html", message="An error occurred. Please try again.")
 
-        return redirect("/login")
     return render_template('users/signup.html')
 
 # LOGIN
-@app.route('/login')
+@bp.route('/login')
 def login():
     return render_template('users/login.html')
 
-@app.route('/faq')
+@bp.route('/faq')
 def faq():
     return render_template('faq.html')
 
-@app.route('/contact')
+@bp.route('/contact')
 def contact():
     return render_template('contact.html')
 

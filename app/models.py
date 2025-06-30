@@ -1,6 +1,7 @@
-import datetime
-from flask_sqlalchemy import SQLAlchemy
-from __init__ import db
+# instead of using "import datetime"
+from datetime import datetime, timezone
+from app.__init__ import db
+from extensions import db
 
 '''
 TO DO:
@@ -26,13 +27,19 @@ class User(db.Model):
     email = db.Column(db.String(40), unique=True, nullable=False)
     password_hash = db.Column(db.String(100), unique=False, nullable=False)
     role = db.Column(db.String(20), unique=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Users` ⟶ 1:M ⟶ `UserTeams`
     user_teams = db.relationship('User_Team', back_populates='user', lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
     # Deleting a user will delete the image associated with the user
-    image = db.relationship('Image', back_populates='user', uselist=False,cascade="all, delete-orphan")
+    image = db.relationship('Image', 
+                       back_populates='user', 
+                       uselist=False,
+                       cascade='all, delete-orphan',
+                       foreign_keys='Image.user_id')
 
 
 # Game Model
@@ -48,15 +55,21 @@ class Game(db.Model):
     title = db.Column(db.String(50), unique=False, nullable=False)
     release_year = db.Column(db.Integer, unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Games` ⟶ 1:M ⟶ `Teams`
     teams = db.relationship('Team',back_populates='game',lazy=True)
     #  `Games` ⟶ 1:M ⟶ `Characters` 
     characters = db.relationship('Character',back_populates='game',lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
     # Deleting a game will delete the image associated with the game
-    image = db.relationship('Image', back_populates='game',uselist=False,cascade="all, delete-orphan")
+    image = db.relationship('Image',
+                      back_populates='game',
+                      uselist=False,
+                      cascade='all, delete-orphan',
+                      foreign_keys='Image.game_id')
 
 # Team Model
 # ADD OPTIONAL MAP NAME ATTRIBUTES?
@@ -70,8 +83,10 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team_name = db.Column(db.String(50), unique=False, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Games` ⟶ 1:M ⟶ `Teams`
     game = db.relationship('Game',back_populates='teams',lazy=True)
     # `Teams` ⟶ 1:M ⟶ `Strategies`
@@ -81,9 +96,14 @@ class Team(db.Model):
     characters = db.relationship('Team_Character',back_populates='team')
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
     # Deleting a team will delete the image associated with the team
-    image = db.relationship('Image', back_populates='team', uselist=False,cascade="all, delete-orphan")
     #`Teams` ⟶ 1:M ⟶ `UserTeams`  
     user_teams = db.relationship('User_Team', back_populates='team', lazy=True)
+     # Deleting a team will delete the image associated with the team
+    image = db.relationship('Image',
+                      back_populates='team',
+                      uselist=False,
+                      cascade='all, delete-orphan',
+                      foreign_keys='Image.team_id')
 
 
 # Character Model
@@ -97,10 +117,12 @@ class Character(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=False, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # Relationship to the intermediate Character_Attribute model
-    attributes = db.relationship('Character_Attribute', back_populates='characters',lazy=True)
+    attributes = db.relationship('Character_Attribute', back_populates='character',lazy=True)
     # Relationship to the intermediate Character_Inventory model
     # # - `Characters` ⟶ M:N ⟶ `InventoryItems` (via `CharacterInventory`)
     inventory_items = db.relationship('Character_Inventory', back_populates='character',lazy=True)
@@ -111,7 +133,11 @@ class Character(db.Model):
     game = db.relationship('Game', back_populates='characters', lazy=True)
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
     # Deleting a character will delete the image associated with the character
-    image = db.relationship('Image', back_populates='character',uselist=False,cascade="all, delete-orphan")
+    image = db.relationship('Image',
+                      back_populates='character',
+                      uselist=False,
+                      cascade='all, delete-orphan',
+                      foreign_keys='Image.character_id')
     
     
 
@@ -127,8 +153,10 @@ class Attribute(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     attribute_name = db.Column(db.String(50), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # Relationship to the intermediate Character_Attribute model
     characters = db.relationship('Character_Attribute', back_populates='attribute')
     
@@ -146,8 +174,10 @@ class Character_Attribute(db.Model):
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'),primary_key=True)
     attribute_id = db.Column(db.Integer, db.ForeignKey('attribute.id'),primary_key=True)
     attribute_value = db.Column(db.String(50), unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Characters` ⟶ M:N ⟶ `Attributes` (via `CharacterAttributes`)
     character = db.relationship('Character', back_populates='attributes')
     attribute = db.relationship('Attribute', back_populates='characters')
@@ -167,13 +197,19 @@ class Inventory_Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_name =  db.Column(db.String(50), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # Relationship to the intermediate Character_Inventory model
     characters = db.relationship('Character_Inventory',back_populates='inventory_item')
     # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
     # Deleting an inventory_item will delete the image associated with the inventory_item
-    image = db.relationship('Image', back_populates='inventory_item',cascade="all, delete-orphan")
+    image = db.relationship('Image',
+                       back_populates='inventory_item',
+                       uselist=False,
+                       cascade='all, delete-orphan',
+                       foreign_keys='Image.inventory_item_id')
     
 
 
@@ -190,8 +226,10 @@ class Character_Inventory(db.Model):
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'),primary_key=True)
     inventory_item_id = db.Column(db.Integer, db.ForeignKey('inventoryitem.id'),primary_key=True)
     quantity = db.Column(db.Integer, unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # - `Characters` ⟶ M:N ⟶ `InventoryItems` (via `CharacterInventory`)
     character = db.relationship('Character', back_populates='inventory_items')
     inventory_item = db.relationship('Inventory_Item', back_populates='characters')
@@ -209,8 +247,10 @@ class User_Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Users` ⟶ 1:M ⟶ `UserTeams`
     user = db.relationship('User', back_populates='user_teams')
     # `Teams` ⟶ 1:M ⟶ `UserTeams`  
@@ -228,8 +268,10 @@ class Team_Character(db.Model):
     # Composite Keys
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'),primary_key=True)
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'),primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
     # `Teams` ⟶ M:N ⟶ `Characters` (via `TeamCharacters`)
     team = db.relationship('Team', back_populates='characters')
     character = db.relationship('Character', back_populates='teams')
@@ -247,39 +289,39 @@ class Strategy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id')) 
     description = db.Column(db.String(200), unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
      # `Teams` ⟶ 1:M ⟶ `Strategies`
      # Deleting a team will delete a strategy
-    team = db.relationship('Team',back_populates='strategies',lazy=True,cascade="all, delete-orphan")
+    team = db.relationship('Team',back_populates='strategies',lazy=True)
 
 
 # Image Model
 class Image(db.Model):
     __tablename__ = 'image'
-    # - `image_id` (Primary Key)
-    # - `entity_type` (e.g., "Character", "Team", "InventoryItem", etc.)
-    # - `entity_id` (Foreign Key referencing the associated entity)
-    # - `image_url` or `image_path` (Path to the image file)
-    # - `created_at` (Timestamp)
-    # - `updated_at` (Timestamp)
     id = db.Column(db.Integer, primary_key=True)
-    entity_type = db.Column(db.String(50), unique=False, nullable=False)
-    entity_id = db.Column(db.Integer, nullable=False)  # The ID of the referenced entity
-    image_url = db.Column(db.String(200), unique=False, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC))  # Automatically set on creation
-    updated_at = db.Column(db.DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))  # Update on modification
-    # `Images` ⟶ 1:1 ⟶ (`Users`, `Games`, `Teams`, `Characters`, `InventoryItems`)
-    user = db.relationship('User', back_populates='image', uselist=False)
-    game = db.relationship('Game', back_populates='image', uselist=False)
-    team = db.relationship('Team', back_populates='image', uselist=False)
-    character = db.relationship('Character', back_populates='image', uselist=False)
-    inventory_item = db.relationship('Inventory_Item', back_populates='image', uselist=False)
+    
+    # Specific foreign keys (only one will be non-NULL per record)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
+    character_id = db.Column(db.Integer, db.ForeignKey('character.id'), nullable=True)
+    inventory_item_id = db.Column(db.Integer, db.ForeignKey('inventoryitem.id'), nullable=True)
+    
+    # Common image fields
+    image_url = db.Column(db.String(200))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, 
+                         default=lambda: datetime.now(timezone.utc),
+                         onupdate=lambda: datetime.now(timezone.utc))
+    
+    # Relationships (now properly linked to specific FKs)
+    user = db.relationship('User', back_populates='image', foreign_keys=[user_id])
+    game = db.relationship('Game', back_populates='image', foreign_keys=[game_id])
+    team = db.relationship('Team', back_populates='image', foreign_keys=[team_id])
+    character = db.relationship('Character', back_populates='image', foreign_keys=[character_id])
+    inventory_item = db.relationship('Inventory_Item', back_populates='image', foreign_keys=[inventory_item_id])
 
-    # Polymorphic relationship for ORM queries
-    #When querying:
-        # image = Image.query.filter_by(entity_type='Character', entity_id=1).first()
-    __mapper_args__ = {
-        "polymorphic_on": entity_type,
-    }
-
+  

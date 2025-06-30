@@ -1,13 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from extensions import db, csrf
 
-# db and csrf have been defined outside any function or class, so they are accessible globally throughout the application.
+# db and csrf have been defined outside any function or class,
+# so they are accessible globally throughout the application.
 # Initialize SQLAlchemy instance
-db = SQLAlchemy()
+
 
 # Initialize CSRFProtect instance
-csrf = CSRFProtect()
+
 
 def create_app():
     ''' 
@@ -28,10 +30,20 @@ def create_app():
 
     with app.app_context():
         # Import routes (views) after app is created to avoid circular imports
-        from . import routes
+        # Import models AFTER db initialization
+        from . import models
         
         # Create all database tables defined in models.py
+        # DO not need to manually create tables. SQLAlchemy, 
+        # together with db.create_all() or Flask-Migrate, 
+        # will handle this. Just need to define models in Python, 
+        # and the framework will map them to database tables
         db.create_all()
+
+        # Import routes AFTER models
+        # Import and register the blueprint
+        from .routes import bp
+        app.register_blueprint(routes.bp)
 
     # Return the Flask app instance
     return app
