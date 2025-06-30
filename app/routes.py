@@ -7,7 +7,7 @@ from .models import User
 from flask import Blueprint
 # db and csrf variables
 from extensions import db
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 bp = Blueprint('main', __name__)
 
@@ -91,6 +91,11 @@ def login():
 
 
 # LOGOUT
+@bp.route('/logout')
+def logout():
+    logout_user()
+    flash("You have been logged out! Goodbye!")
+    return redirect(url_for('main.index'))
 
 @bp.route('/faq')
 def faq():

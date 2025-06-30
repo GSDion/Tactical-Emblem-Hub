@@ -23,16 +23,21 @@
     - [ ] Fix mobile navbar (not currently clickable)
     - [ ] Find photo for about section
 - [ ] Contact/FAQ Page
-- [ ] Login
+- [x] Login
     - [x] Implement frontend
-    - [ ] Implement backend
-- [ ] Signup
+    - [x] Implement backend
+- [x] Logout
+- [x] Signup
     - [x] Implement frontend
     - [x] Implement backend
 - [ ] Creation of Teams
     - [ ] Create teams
     - [ ] Edit teams
     - [ ] Delete teams
+- [ ] User Profile
+    - [ ] Edit email
+    - [ ] Edit username
+    - [ ] Edit password
 - [ ] Collaborative teams 
 
 
