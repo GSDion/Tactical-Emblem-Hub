@@ -28,6 +28,7 @@ body {
 #title_page {
     height:100%;
     width:100%;
+    padding-bottom: 40rem;
 }
 
 .ike {
@@ -60,7 +61,7 @@ body {
 }
 
 #about_page_title h1 {
-    padding-top: 40rem;
+    /* padding-top: 40rem; */
     padding-left: 5rem;
 }
 

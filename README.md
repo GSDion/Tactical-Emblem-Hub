@@ -27,7 +27,7 @@
     - [ ] Implement backend
 - [ ] Signup
     - [x] Implement frontend
-    - [ ] Implement backend
+    - [x] Implement backend
 - [ ] Creation of Teams
     - [ ] Create teams
     - [ ] Edit teams

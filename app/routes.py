@@ -15,17 +15,6 @@ bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-
-# INDEX: title_section
-@bp.route('/hero')
-def title_section():
-    return redirect(url_for('main.index',_anchor='title_page'))
-
-# INDEX: about_section
-@bp.route('/about')
-def about_section():
-    return redirect(url_for('main.index',_anchor='about_page_title'))
-
 @bp.route('/signup', methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -70,9 +59,21 @@ def signup():
     return render_template('users/signup.html')
 
 # LOGIN
-@bp.route('/login')
+@bp.route('/login', methods=["GET"])
 def login():
+    # Get username and password data
+
+    # Check if username exists
+
+    # Match username with hashed_password, check if hashed_password equals entered password
+
+    #create a session for the user
+
+
+
     return render_template('users/login.html')
+
+# LOGOUT
 
 @bp.route('/faq')
 def faq():
