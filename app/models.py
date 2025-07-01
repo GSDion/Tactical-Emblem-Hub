@@ -1,5 +1,6 @@
 # instead of using "import datetime"
 from datetime import datetime, timezone
+from hashlib import md5
 from app.__init__ import db
 from extensions import db
 from flask_login import UserMixin
@@ -41,6 +42,9 @@ class User(UserMixin, db.Model):
                        uselist=False,
                        cascade='all, delete-orphan',
                        foreign_keys='Image.user_id')
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
 
 # Game Model

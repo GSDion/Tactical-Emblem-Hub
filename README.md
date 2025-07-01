@@ -38,6 +38,7 @@
     - [ ] Edit email
     - [ ] Edit username
     - [ ] Edit password
+    - [ ] Delete account
 - [ ] Collaborative teams 
 
 

@@ -7,7 +7,8 @@ from .models import User
 from flask import Blueprint
 # db and csrf variables
 from extensions import db
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required, current_user
+import sqlalchemy as sa
 
 bp = Blueprint('main', __name__)
 
@@ -68,6 +69,12 @@ def signup():
     return render_template('users/signup.html')
 
 # LOGIN
+# Need to put both POST and GET methods or the error "The method is not allowed for the requested URL" will occur
+'''
+When an address is entered in the browser and enter is hit, a GET is being performed.
+If you are trying to access that API endpoint directly in your browser, you will 
+have a method problem because your route explicitly states it is limited to "POST"
+'''
 @bp.route('/login', methods=["POST", "GET"])
 def login():
     # Get email and password data
@@ -105,9 +112,27 @@ def faq():
 def contact():
     return render_template('contact.html')
 
-@bp.route('/profile')
-def profile():
-    return render_template('profile.html')
+@bp.route('/profile/<username>', methods=["POST", "GET"])
+@login_required
+def profile(username):
+
+    # Populate fields with current email, username, and image.
+    if request.method == "GET":
+        # Filter by username
+        user = db.first_or_404(sa.select(User).where(User.username == username))
+        # Get and define user's email and username
+        user_email = user.email
+        user_image = user.image
+        print(username)
+        print(user_email)
+        # Print the current email and username
+        return render_template('profile.html', user=user, username=username, user_email=user_email, user_image=user_image)
+    
+    
+    # Edit either the image, email, username, or password of an account
+    if request.method == "POST":
+
+        return render_template('profile.html')
 
 # CREATE TEAM
 
