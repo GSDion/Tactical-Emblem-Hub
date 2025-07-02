@@ -122,27 +122,32 @@ hr {
 }
 
 /* set login button to have white border and white text in dark mode */
-[data-bs-theme="dark"] button.login-custom {
+[data-bs-theme="dark"] a.login-custom {
     color: var(--bs-light);
     border: var(--border-light);
 
 }
 /* set login button to have black border and black text in light mode */
-[data-bs-theme=light] button.login-custom {
+[data-bs-theme=light] a.login-custom {
     color: var(--bs-dark);
     border: var(--border-dark);
 }
 /* set sign up button to have red background and border in both light and dark mode */
-[data-bs-theme="light"] button.signup-custom,
-[data-bs-theme="dark"] button.signup-custom {
+[data-bs-theme="light"] a.signup-custom,
+[data-bs-theme="dark"] a.signup-custom {
     background-color: #cc5147;
     border: var(--border-dark);
 }
 
+[data-bs-theme="dark"] a:hover.signup-custom,
+[data-bs-theme="light"] a:hover.signup-custom {
+    color: var(--bs-light);;
+}
+
 
 /* set login button to have red hover */
-[data-bs-theme="light"] button:hover.login-custom,
-[data-bs-theme="dark"] button:hover.login-custom {
+[data-bs-theme="light"] a:hover.login-custom,
+[data-bs-theme="dark"] a:hover.login-custom {
     background-color:#cc5147;
 }
 

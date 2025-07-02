@@ -20,7 +20,7 @@
 ## Project Roadmap
 - [ ] Homepage
     - [x] Fix header links
-    - [ ] Fix mobile navbar (not currently clickable)
+    - [x] Fix mobile navbar (not currently clickable)
     - [ ] Find photo for about section
 - [ ] Contact/FAQ Page
 - [x] Login
@@ -35,9 +35,9 @@
     - [ ] Edit teams
     - [ ] Delete teams
 - [ ] User Profile
-    - [ ] Edit email
-    - [ ] Edit username
-    - [ ] Edit password
+    - [x] Edit email
+    - [x] Edit username
+    - [x] Edit password
     - [ ] Delete account
 - [ ] Collaborative teams 
 

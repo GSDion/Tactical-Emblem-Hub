@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, flash
+from flask import abort, render_template, request, redirect, session, flash
 from flask import redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
@@ -115,25 +115,88 @@ def contact():
 @bp.route('/profile/<username>', methods=["POST", "GET"])
 @login_required
 def profile(username):
+    if current_user.username != username:
+        abort(403)
 
-    # Populate fields with current email, username, and image.
-    if request.method == "GET":
-        # Filter by username
-        user = db.first_or_404(sa.select(User).where(User.username == username))
-        # Get and define user's email and username
-        user_email = user.email
-        user_image = user.image
-        print(username)
-        print(user_email)
-        # Print the current email and username
-        return render_template('profile.html', user=user, username=username, user_email=user_email, user_image=user_image)
-    
-    
-    # Edit either the image, email, username, or password of an account
     if request.method == "POST":
+        
+        errors = False
 
-        return render_template('profile.html')
+        # Initialize variables
+        new_username = request.form.get('username', '').strip()
+        new_email = request.form.get('email', '').strip()
+        new_password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm-password', '').strip()
 
+        # --- VALIDATION CHECKS (Only for provided fields) ---
+        # Email validation (only if email field was modified)
+        if 'email' in request.form and new_email:
+            if not re.match(r'[^@]+@[^@]+\.[^@]+', new_email):
+                flash("Invalid email address!", "error")
+                errors = True
+            elif User.query.filter(User.email == new_email, User.id != current_user.id).first():
+                flash("Email already registered!", "error")
+                errors = True
+
+        # Username validation (only if username field was modified)
+        if 'username' in request.form and new_username:
+            if not re.match(r'^[A-Za-z0-9_]+$', new_username):
+                flash("Username must contain only letters, numbers and underscores!", "error")
+                errors = True
+            elif User.query.filter(User.username == new_username, User.id != current_user.id).first():
+                flash("Username already taken!", "error")
+                errors = True
+
+        # Password validation (only if password field was modified)
+        if 'password' in request.form and new_password:
+            if new_password != confirm_password:
+                flash("Passwords don't match!", "error")
+                errors = True
+            elif len(new_password) < 8:
+                flash("Password must be at least 8 characters!", "error")
+                errors = True
+
+        if errors:
+            return render_template("users/profile.html")
+
+        # Edit either the email, username, or password of an account (All fields do not have to be filled)
+        # Only update fields that were provided and non-empty
+        if 'username' in request.form:
+            # request.form['username'] : Gets the raw username value submitted in the HTML form 
+            # (could be " new_username " with spaces) and stripes the trailing white space
+
+            # current_user.username : Updates the username attribute of the SQLAlchemy 
+            # current_user object in memory.
+
+            # database is not changed yet
+            current_user.username = new_username if new_username else current_user.username
+        
+        # Change Email 
+        if 'email' in request.form:
+            current_user.email = new_email if new_email else current_user.email
+
+        # Change password with validaton
+        if 'password' in request.form and new_password:
+            current_user.password = generate_password_hash(new_password)
+
+        try:
+            # Now, the database has been changed.
+            db.session.commit()
+            flash("Profile updated successfully!", "success")
+        except Exception as e:  # Catches database errors (e.g., empty strings)
+            db.session.rollback()
+            flash("An error occurred. There may be invalid data. Fields cannot be empty.", "error")
+        
+        return redirect(url_for('main.profile', username=current_user.username))
+        
+    return render_template('users/profile.html')
+
+# DELETE ACCOUNT
+@bp.route('/delete/<username>', methods=["DELETE", "GET"])
+@login_required
+def delete_account(username):
+    flash("Your account has been deleted! Goodbye!")
+    return render_template('index.html')
 # CREATE TEAM
 
 # EDIT TEAM

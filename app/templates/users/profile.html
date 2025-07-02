@@ -17,7 +17,7 @@
     <div>
         {% extends "message.html" %}
         {% block body %}
-            <form action="/profile" method="GET, POST" >
+            <form action="{{ url_for('main.profile', username=current_user.username) }}" method="POST" >
                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
                 <section class="h-100 h-custom" style="background-color: #cc5147; padding-left: 39px; padding-top: 30px;">
                     <a href="/" class="navbar-brand" >
@@ -26,13 +26,13 @@
                     <div class="container py-5 h-100">
                         <div class="row d-flex justify-content-center align-items-center h-100">
                             <div class="col-lg-8 col-xl-6">
-                                <h2 class="text-center">Welcome {{ user.username }} </h2>
+                                <h2 class="text-center">Welcome {{ current_user.username }} </h2>
                                 <div class="card rounded-3">
                                     <div class="card-body p-4 p-md-5">
                                         
-                                        <h3 class="mb-4 pb-2 pb-md-0 px-md-2 text-center">Edit Profile</h3>
+                                        <h3 class="mb-4 pb-2 pb-md-0 px-md-2 text-center">Profile</h3>
                                         <hr style="border-color: #cae2e6;"></hr>
-                                        <td><img src="{{ user.avatar(128) }}" width="125" height="125" class="rounded mx-auto d-block" alt="..."></td>
+                                        <td><img src="{{ current_user.avatar(128) }}" width="125" height="125" class="rounded mx-auto d-block" alt="..."></td>
                                         
 
                                         <form class="px-md-2">
@@ -40,8 +40,8 @@
                                         <div data-mdb-input-init class="form-outline mb-4">
                                             <!--envelope-->
                                             <i class="fa solid fa-envelope" ></i>
-                                            <label for="email" class="form-label">Edit Email</label>
-                                            <input type="text" id="email" class="form-control" value="{{ request.form['email'] }}" name="email" placeholder="{{user.email}}">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="text" id="email" class="form-control" value="{{ request.form['email'] }}" name="email" placeholder="{{current_user.email}}">
                                             <!--Use current email as placeholder-->
                                             
                                         </div>
@@ -50,8 +50,8 @@
                                             <div>
                                                 <div data-mdb-input-init class="form-outline mb-4">
                                                     <i class="fa-solid fa-user"></i>
-                                                    <label for="username" class="form-label">Edit Username</label>
-                                                    <input type="text" id="username" class="form-control"  value="{{ request.form['username'] }}" name="username" placeholder="{{user.username}}"> 
+                                                    <label for="username" class="form-label">Username</label>
+                                                    <input type="text" id="username" class="form-control"  value="{{ request.form['username'] }}" name="username" placeholder="{{current_user.username}}"> 
                                                     <!--Use current username as placeholder-->
                                                 </div>
                                             </div>
@@ -62,20 +62,40 @@
                                                 
                                                 <div data-mdb-input-init class="form-outline mb-4">
                                                     <i class="fa-solid fa-lock"></i> 
-                                                    <label for="password" class="form-label">Edit Password</label>
+                                                    <label for="password" class="form-label">Password</label>
                                                     <input type="password" id="password" class="form-control"  value="{{ request.form['password'] }}" name="password" placeholder="*******"/>
                                                     <!--Use asterisks as placeholder-->
                                                 </div>
                                             </div>
                                         </div>
                                         
+                                        <div class="row">
+                                            <div>
+                                                
+                                                <div data-mdb-input-init class="form-outline mb-4">
+                                                    <i class="fa-solid fa-lock"></i> 
+                                                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                                                    <input type="password" id="confirm-password" class="form-control"  value="{{ request.form['confirm_password'] }}" name="confirm-password" placeholder="*******"/>
+                                                    <!--Use asterisks as placeholder-->
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-success btn-lg mb-1" style=" background-color: #cd5a4b; border-color:#cd5a4b;">Submit</button>
 
                                         </form>
 
                                     </div>
+                                </div> <!--end of profile card-->
+
+                                <div class="card rounded-3">
+                                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center align-items-center" style="padding-top: 5rem; ">
+                                        <h2>Delete Account</h2>
+                                        <p>This is irreversible! Proceed with caution!</p>
+                                        <button type="" class="btn btn-lg mb-1 " style=" background-color: red; border-color:red;">Delete Account</button>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
