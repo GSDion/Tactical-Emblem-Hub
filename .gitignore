@@ -13,3 +13,5 @@
 instance/*.sqlite
 instance/*.sqlite3
 db.sqlite
+
+Python_Scripts

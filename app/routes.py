@@ -192,11 +192,29 @@ def profile(username):
     return render_template('users/profile.html')
 
 # DELETE ACCOUNT
-@bp.route('/delete/<username>', methods=["DELETE", "GET"])
+@bp.route('/delete/<username>', methods=["POST"])
 @login_required
 def delete_account(username):
+    if current_user.username != username:
+        abort(403)
+    # Query.delete() does not offer in-Python cascading
+    # Need to query the database FIRST and THEN delete the user object directly
+    # Cannot just delete the user by id
+    # A line such as "User.query.filter_by(current_user.id).delete()" would not offer cascading
+    # after "filter", you are still returned a Query object. Therefore, when you call `delete()`, 
+    # you are calling `delete()` on the Query object (not the User object). 
+    # This means a bulk delete (albeit probably with just a single row being deleted) was done
+    # However, if cascading is done at database lvl, then the aforementioned line WOULD work
+    user = db.session.query(User).filter(User.id == current_user.id).first()
+    db.session.delete(user)
+    db.session.commit()
+    logout_user()
     flash("Your account has been deleted! Goodbye!")
-    return render_template('index.html')
+    
+    return redirect(url_for('main.index'))
+
 # CREATE TEAM
 
 # EDIT TEAM
+
+# DELETE TEAM

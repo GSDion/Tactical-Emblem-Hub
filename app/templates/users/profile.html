@@ -87,20 +87,23 @@
 
                                     </div>
                                 </div> <!--end of profile card-->
-
-                                <div class="card rounded-3">
-                                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center align-items-center" style="padding-top: 5rem; ">
-                                        <h2>Delete Account</h2>
-                                        <p>This is irreversible! Proceed with caution!</p>
-                                        <button type="" class="btn btn-lg mb-1 " style=" background-color: red; border-color:red;">Delete Account</button>
-                                    </div>
-                                </div>
-
+                                
                             </div>
                         </div>
                     </div>
                 </section>
             </form>
+            <form action="{{ url_for('main.delete_account', username=current_user.username) }}" method="POST">
+                <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
+                                    <div class="card rounded-3">
+                                        <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-center align-items-center" style="padding-top: 5rem; ">
+                                            <h2>Delete Account</h2>
+                                            <p>This is irreversible! Proceed with caution!</p>
+                                            <button type="submit" class="btn btn-lg mb-1 " style=" background-color: red; border-color:red;">Delete Account</button>
+                                        </div>
+                                    </div>
+                                </form>
+             
         {% endblock %}
     </div>
 </body>
