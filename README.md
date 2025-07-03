@@ -31,6 +31,7 @@
     - [x] Implement frontend
     - [x] Implement backend
 - [ ] Creation of Teams
+    - [ ] Frontend 
     - [ ] Create teams
     - [ ] Edit teams
     - [ ] Delete teams
@@ -38,7 +39,7 @@
     - [x] Edit email
     - [x] Edit username
     - [x] Edit password
-    - [ ] Delete account
+    - [x] Delete account
 - [ ] Collaborative teams 
 
 
