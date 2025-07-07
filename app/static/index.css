@@ -156,6 +156,12 @@ hr {
     filter: invert(0%) brightness(15%);
 }
 
+/* Required Asterisk for forms*/
+.starlabel label:after {
+  content:" *";
+  color: red;
+}
+
 /* Tablets (Stack Titles Above Image, Centered) */
 @media (max-width: 1024px) {
     .ike {

@@ -22,7 +22,10 @@
     - [x] Fix header links
     - [x] Fix mobile navbar (not currently clickable)
     - [ ] Find photo for about section
-- [ ] Contact/FAQ Page
+- [x] FAQ Page
+- [ ] Contact Page
+    - [x] Frontend for contact form
+    - [ ] Backend for contact form 
 - [x] Login
     - [x] Implement frontend
     - [x] Implement backend

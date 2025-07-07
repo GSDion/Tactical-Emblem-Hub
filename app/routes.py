@@ -16,6 +16,16 @@ bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
+#About_page of INDEX
+@bp.route('/about_section')
+def about_section():
+    return redirect(url_for('main.index', _anchor='about_page'))
+
+#Title_page of INDEX
+@bp.route('/title_section')
+def title_section():
+    return redirect(url_for('main.index', _anchor='title_page'))
+
 @bp.route('/signup', methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
