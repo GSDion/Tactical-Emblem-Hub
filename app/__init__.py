@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
-from extensions import db, csrf
+from flask_mail import Mail
+from extensions import db, csrf, mail
 from flask_login import LoginManager
 
 # db and csrf have been defined outside any function or class,
@@ -39,6 +40,9 @@ def create_app():
 
     # Initialize CSRF protection for the app
     csrf.init_app(app)
+
+    # Flask Mail
+    mail.init_app(app)
 
     with app.app_context():
         # Import routes (views) after app is created to avoid circular imports

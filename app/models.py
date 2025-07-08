@@ -329,4 +329,11 @@ class Image(db.Model):
     character = db.relationship('Character', back_populates='image', foreign_keys=[character_id])
     inventory_item = db.relationship('Inventory_Item', back_populates='image', foreign_keys=[inventory_item_id])
 
-  
+class Contact_Message(db.Model):
+    __tablename__ = 'contact_message'
+    serial_number = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=False, nullable=True)
+    email = db.Column(db.String(40), unique=True, nullable=True)
+    subject = db.Column(db.String(50), unique=False, nullable=False)
+    message = db.Column(db.String(200), unique=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

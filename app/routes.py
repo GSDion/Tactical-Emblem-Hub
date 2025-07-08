@@ -3,14 +3,26 @@ from flask import redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 # Import schemas
-from .models import User
+from .models import User, Contact_Message
 from flask import Blueprint
 # db and csrf variables
-from extensions import db
+from extensions import db, mail
 from flask_login import login_user, logout_user, login_required, current_user
 import sqlalchemy as sa
+from config import Config
+from flask import current_app
+
 
 bp = Blueprint('main', __name__)
+
+# Config for Flask Mail
+current_app.config.from_object(Config)
+current_app.config['MAIL_SERVER'] 
+current_app.config['MAIL_PORT'] 
+current_app.config['MAIL_USE_SSL'] 
+current_app.config['MAIL_USERNAME'] 
+current_app.config['MAIL_PASSWORD'] 
+current_app.config['MAIL_USE_TLS']
 
 @bp.route('/')
 def index():
@@ -118,8 +130,32 @@ def logout():
 def faq():
     return render_template('faq.html')
 
-@bp.route('/contact')
+@bp.route('/contact', methods=["GET", "POST"])
 def contact():
+    if request.method == 'POST':
+        # Getting data from the form
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+
+        # Adding entries to the DB and committing
+        contact_msg = Contact_Message(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+        db.session.add(contact_msg)
+        db.session.commit()
+
+        # Sending message to gmail
+        mail.send_message("Message from " + name + " at " + email,
+                          sender = email,
+                          recipients = ['MAIL_USERNAME'],
+                          body = subject + "\n\n" + message
+                          )
+        flash("Form Submission Successful!")
     return render_template('contact.html')
 
 @bp.route('/profile/<username>', methods=["POST", "GET"])
