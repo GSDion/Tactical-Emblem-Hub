@@ -13,9 +13,17 @@
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
 ## Current Features
-<!-- - Signup
+- Signup
 - Login
-- Create a team (Every team is associated with a game, strategy and a chosen variety of characters. The process goes: game, team, characters, strategy) -->
+- Logout
+- Edit User Profile
+    - Edit email
+    - Edit username
+    - Edit password
+    - Delete account
+- Contact Developer
+- FAQ Page
+<!-- - Create a team (Every team is associated with a game, strategy and a chosen variety of characters. The process goes: game, team, characters, strategy) -->
 
 ## Project Roadmap
 - [ ] Homepage
