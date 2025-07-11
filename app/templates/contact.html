@@ -80,6 +80,8 @@
             </div>
         </nav>
         <!--Contact Form-->
+        {% extends "message.html" %}
+        {% block body %}
         <form id="contact-form" action="/contact" method="POST" class="px-5 pt-3">
             <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
             <h2>Contact the Developer</h2>
@@ -117,6 +119,7 @@
                 Send
             </button>
         </form>
+        {% endblock %}
         <!--Footer-->
         <div id="footer">
             <div class="container">
@@ -136,5 +139,6 @@
                 </footer>
             </div>
         </div>
+        
     </div>
 </body>

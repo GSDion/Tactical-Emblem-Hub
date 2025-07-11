@@ -1,5 +1,6 @@
 from flask import abort, render_template, request, redirect, session, flash
 from flask import redirect, url_for
+from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 # Import schemas
@@ -12,17 +13,7 @@ import sqlalchemy as sa
 from config import Config
 from flask import current_app
 
-
 bp = Blueprint('main', __name__)
-
-# Config for Flask Mail
-current_app.config.from_object(Config)
-current_app.config['MAIL_SERVER'] 
-current_app.config['MAIL_PORT'] 
-current_app.config['MAIL_USE_SSL'] 
-current_app.config['MAIL_USERNAME'] 
-current_app.config['MAIL_PASSWORD'] 
-current_app.config['MAIL_USE_TLS']
 
 @bp.route('/')
 def index():
@@ -150,12 +141,35 @@ def contact():
         db.session.commit()
 
         # Sending message to gmail
-        mail.send_message("Message from " + name + " at " + email,
-                          sender = email,
-                          recipients = ['MAIL_USERNAME'],
-                          body = subject + "\n\n" + message
-                          )
-        flash("Form Submission Successful!")
+        try:
+            msg = Message(
+                subject=f"Message from {name} at {email}",
+                sender=email,
+                recipients=current_app.config['MAIL_RECIPIENTS'],  # Must be a list
+                body=f"Subject: {subject}\n\nMessage: {message}"
+            )
+
+            # Debugging
+            print(f"""
+            === Email Debug ===
+            From: {email}
+            To: {current_app.config['MAIL_RECIPIENTS']}
+            Subject: Message from {name} at {email}
+            Body:
+            {subject}
+            ---
+            {message}
+            === End Debug ===
+            """)
+
+            mail.send(msg)
+            flash("Form Submission Successful!")
+            return render_template("contact.html")
+        except Exception as e:
+            flash("Message could not be sent. Please try again later.")
+            print(f"Error sending email: {e}")
+            return render_template("contact.html")
+
     return render_template('contact.html')
 
 @bp.route('/profile/<username>', methods=["POST", "GET"])

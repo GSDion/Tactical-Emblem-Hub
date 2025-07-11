@@ -5,13 +5,8 @@ from flask_mail import Mail
 from extensions import db, csrf, mail
 from flask_login import LoginManager
 
-# db and csrf have been defined outside any function or class,
+# db and csrf need to be defined outside any function or class,
 # so they are accessible globally throughout the application.
-# Initialize SQLAlchemy instance
-
-
-# Initialize CSRFProtect instance
-
 
 def create_app():
     ''' 
@@ -25,7 +20,10 @@ def create_app():
     app.config.from_object('config.Config')
 
     # Initialize the SQLAlchemy instance with the app
+    # Intialize extensions
     db.init_app(app)
+    csrf.init_app(app)
+    mail.init_app(app) # This should come after config is loaded
 
     login_manager = LoginManager()
     login_manager.login_view = 'bp.login'
@@ -39,10 +37,10 @@ def create_app():
         return User.query.get(int(user_id))
 
     # Initialize CSRF protection for the app
-    csrf.init_app(app)
+    # csrf.init_app(app)
 
     # Flask Mail
-    mail.init_app(app)
+    # mail.init_app(app)
 
     with app.app_context():
         # Import routes (views) after app is created to avoid circular imports
@@ -59,7 +57,9 @@ def create_app():
         # Import routes AFTER models
         # Import and register the blueprint
         from .routes import bp
-        app.register_blueprint(routes.bp)
+        # app.register_blueprint(routes.bp)
+        app.register_blueprint(bp) # Use the imported bp directly
+
 
     # Return the Flask app instance
     return app

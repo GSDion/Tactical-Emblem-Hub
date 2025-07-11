@@ -25,7 +25,7 @@
 - [x] FAQ Page
 - [ ] Contact Page
     - [x] Frontend for contact form
-    - [ ] Backend for contact form 
+    - [x] Backend for contact form 
 - [x] Login
     - [x] Implement frontend
     - [x] Implement backend
