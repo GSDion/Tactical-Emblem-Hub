@@ -274,7 +274,13 @@ def delete_account(username):
     return redirect(url_for('main.index'))
 
 # CREATE TEAM
+@bp.route('/create_team/<username>', methods=["GET", "POST"])
+@login_required
+def create_team(username):
+    return render_template('create_team/create_team.html')
 
 # EDIT TEAM
+# THIS SHOULD BE IN EDIT PROFILE
 
 # DELETE TEAM
+# THIS SHOULD BE IN EDIT PROFILE

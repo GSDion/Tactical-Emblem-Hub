@@ -31,7 +31,7 @@
     - [x] Fix mobile navbar (not currently clickable)
     - [ ] Find photo for about section
 - [x] FAQ Page
-- [ ] Contact Page
+- [x] Contact Page
     - [x] Frontend for contact form
     - [x] Backend for contact form 
 - [x] Login
@@ -46,7 +46,7 @@
     - [ ] Create teams
     - [ ] Edit teams
     - [ ] Delete teams
-- [ ] User Profile
+- [x] User Profile
     - [x] Edit email
     - [x] Edit username
     - [x] Edit password
