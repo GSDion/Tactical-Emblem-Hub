@@ -310,6 +310,8 @@ def create_team(step):
     # Step 1: Team Info
     if step == 1:
         form = TeamInfoForm(data=session['form_data']['step1'])
+        # DEBUG
+        print("Form data received:", form.data)
         if form.validate_on_submit():
             session['form_data']['step1'] = {
                 'team_name': form.team_name.data
@@ -326,7 +328,8 @@ def create_team(step):
         # Pre-populate form if returning to this step
         if 'game_id' in session['form_data']['step2']:
             form.game_id.data = session['form_data']['step2']['game_id']
-        
+        # DEBUG
+        print("Form data received:", form.data)
         if form.validate_on_submit():
             session['form_data']['step2'] = {
                 'game_id': form.game_id.data
@@ -347,27 +350,50 @@ def create_team(step):
         attributes = Attribute.query.order_by(Attribute.attribute_name).all()
         inventory_items = Inventory_Item.query.order_by(Inventory_Item.item_name).all()
         
-        # Create character dictionary for easy lookup
+        # Initialize character_dict
         character_dict = {str(c.id): c for c in characters}
         
         form = CharacterSelectionForm()
         form.characters.choices = [(c.id, c.name) for c in characters]
         
-        if 'step3' in session['form_data']:
-            form.characters.data = session['form_data']['step3'].get('character_ids', [])
-        
-        if form.validate_on_submit():
+        # Initialize step3 data if not exists
+        if 'step3' not in session['form_data']:
             session['form_data']['step3'] = {
-                'character_ids': form.characters.data,
+                'character_ids': [],
                 'character_data': {}
             }
+        
+        # Safely get character_ids with default empty list
+        character_ids = session['form_data']['step3'].get('character_ids', [])
+        form.characters.data = character_ids
+        # DEBUG
+        print("Form data received:", form.data)
+        if form.validate_on_submit():
+            # Get selected characters from form
+            selected_characters = form.characters.data
+            
+            # Preserve existing character_data for selected characters
+            existing_data = session['form_data']['step3'].get('character_data', {})
+            new_character_data = {}
+            
+            # Only keep data for currently selected characters
+            for char_id in selected_characters:
+                char_id_str = str(char_id)
+                new_character_data[char_id_str] = existing_data.get(char_id_str, {})
+            
+            # Update session
+            session['form_data']['step3'] = {
+                'character_ids': selected_characters,
+                'character_data': new_character_data
+            }
+            session.modified = True
+            
             return redirect(url_for('main.create_team', step=4))
         
-        # Update template_vars with character_dict
         template_vars.update({
             'selected_game': selected_game,
             'characters': characters,
-            'character_dict': character_dict,  
+            'character_dict': character_dict,
             'attributes': attributes,
             'inventory_items': inventory_items
         })
@@ -379,14 +405,36 @@ def create_team(step):
             return redirect(url_for('main.create_team', step=3))
             
         form = StrategyForm(data=session['form_data'].get('step4', {}))
-        
+        # DEBUG
+        print("Form data received:", form.data)
         if form.validate_on_submit():
-            session['form_data']['step4'] = {'strategy_description': form.strategy_description.data}
+            session['form_data']['step4'] = {
+                'strategy_description': form.strategy_description.data
+            }
+            session.modified = True
+            
+            # Verify all required data is present
+            required_data = {
+                'team_name': session['form_data']['step1'].get('team_name'),
+                'game_id': session['form_data']['step2'].get('game_id'),
+                'character_ids': session['form_data']['step3'].get('character_ids', []),
+                'strategy_description': form.strategy_description.data
+            }
+            
+            if not all(required_data.values()):
+                flash('Missing required team information', 'danger')
+                return redirect(url_for('main.create_team', step=1))
+                
+            if len(required_data['character_ids']) == 0:
+                flash('Please select at least one character', 'danger')
+                return redirect(url_for('main.create_team', step=3))
+                
             return process_final_team_submission()
         
     if step > 1:
-        template_vars['team_name'] = session['form_data']['step1'].get('team_name', 'Unknown Team')
-    
+        template_vars['team_name'] = session['form_data']['step1'].get('team_name', 'Unknown Team')\
+    # DEBUG
+    print("Session data:", session['form_data'])  
     return render_template('create_team/create_team.html', form=form, **template_vars)
     
     # return render_template('create_team/create_team.html',
@@ -400,6 +448,14 @@ def create_team(step):
     #                     inventory_items=inventory_items)
 
 def process_final_team_submission():
+    
+    # DEBUG: Print the data being saved
+    print("Final team data being saved:", {
+        'team_name': session['form_data']['step1']['team_name'],
+        'game_id': session['form_data']['step2']['game_id'],
+        'character_ids': session['form_data']['step3']['character_ids'],
+        'strategy': session['form_data']['step4']['strategy_description']
+    })
     # Check session exists before moving forward
     if 'form_data' not in session:
         flash('Session expired. Please start again.', 'danger')

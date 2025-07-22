@@ -17,7 +17,7 @@
     {% block body %}
     <!--HEADER-->
     <a href="/" class="navbar-brand" >
-        <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid " alt="clipboard" width="40" height="24">
+        <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid " alt="clipboard" width="40" height="24" style="margin-left: 39px; margin-top: 30px;">
     </a>
 
     <div class="container py-5">
@@ -147,38 +147,39 @@
             </div>
             
             <div class="row">
-                {% for subfield in form.characters %}
-                    {% with character = character_dict.get(subfield.data|string) %}
-                        {% if character %}
-                            <div class="col-md-6 mb-4">
-                                <div class="card character-card">
-                                    {{ subfield(class="d-none") }}
-                                    <label for="{{ subfield.id }}" class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            {% if character.image %}
-                                            <img src="{{ url_for('static', filename=character.image.path) }}" 
-                                                class="rounded me-3" 
-                                                width="80" 
-                                                height="80"
-                                                alt="{{ character.name }}"
-                                                style="object-fit: cover;">
-                                            {% endif %}
-                                            <div class="flex-grow-1">
-                                                <h5>{{ character.name }}</h5>
-                                                <p class="text-muted mb-1">{{ character.description|truncate(100) }}</p>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" 
-                                                data-bs-toggle="modal" data-bs-target="#customizeModal-{{ character.id }}">
-                                            <i class="fas fa-cog"></i> Customize
-                                        </button>
-                                    </label>
+    {% for subfield in form.characters %}
+        {% with character = character_dict.get(subfield.data|string) %}
+            {% if character %}
+                <div class="col-md-6 mb-4">
+                    <div class="card character-card {% if subfield.data|string in session['form_data']['step3']['character_ids'] %}selected{% endif %}">
+                        {{ subfield(class="d-none") }}
+                        <label for="{{ subfield.id }}" class="card-body">
+                            <div class="d-flex align-items-center">
+                                {% if character.image %}
+                                <img src="{{ url_for('static', filename=character.image.path) }}" 
+                                    class="rounded me-3" 
+                                    width="80" 
+                                    height="80"
+                                    alt="{{ character.name }}"
+                                    style="object-fit: cover;">
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <h5>{{ character.name }}</h5>
+                                    <p class="text-muted mb-1">{{ character.description|truncate(100) }}</p>
                                 </div>
                             </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endfor %}
-            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" 
+                                    data-bs-toggle="modal" data-bs-target="#customizeModal-{{ character.id }}">
+                                <i class="fas fa-cog"></i> Customize
+                            </button>
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+</div>
+
 
             <!--Modals for character customization-->
             {% for character in characters %}
@@ -377,6 +378,28 @@
                 updateInputState();
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // Character selection functionality
+    document.querySelectorAll('.character-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    this.classList.toggle('selected', checkbox.checked);
+                    
+                    // Update the form's character list
+                    const form = this.closest('form');
+                    if (form) {
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.disabled = false;
+                    }
+                }
+            }
+        });
+    });
+});
     </script>
 
     <style>
