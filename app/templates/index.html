@@ -71,7 +71,7 @@
                     {% if current_user.is_authenticated %}
                         <div class="d-flex flex-column flex-lg-row align-items-center mt-3 mt-lg-0">
                             <a href="{{ url_for('main.logout') }}" class="btn btn-outline-primary me-2 login-custom">Log out</a>
-                            <a href="{{ url_for('main.create_team') }}" class="btn btn-primary signup-custom">Create Team!</a>
+                            <a href="{{ url_for('main.create_team', step=1) }}" class="btn btn-primary signup-custom">Create Team!</a>
                         </div>
                     {% else %}
                         <div class="d-flex flex-column flex-lg-row align-items-center mt-3 mt-lg-0">

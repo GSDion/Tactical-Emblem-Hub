@@ -7,371 +7,418 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
 
-
+ {% extends "message.html" %}
 <body>
+   
+    {% block body %}
+    <!--HEADER-->
+    <a href="/" class="navbar-brand" >
+        <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid " alt="clipboard" width="40" height="24">
+    </a>
+
+    <div class="container py-5">
+    <h2 class="mb-4">Create New Team</h2>
     
-{% block content %}
-<!--HEADER-->
-<a href="/" class="navbar-brand" >
-    <img src="{{ url_for('static', filename='img/clipboard-solid.svg') }}" class="img-fluid clipboard-solid " alt="clipboard" width="40" height="24">
-</a>
-
-
-<div class="container  py-5 h-100">
-
-
-  <h2 class="mb-4">Create New Team</h2>
-  
-  <!--Progress Bar Shows Current Step-->
-  <div class="progress mb-4">
-    <div class="progress-bar progress-step-{{ current_step }}"></div>
-      Step {{ current_step }} of 4
-    </div>
-  </div>
-
-  <form action="/create-team" method="POST" id="teamCreationForm">
-    <input type="hidden" id="csrf_token" name="csrf_token" value="{{csrf_token()}}">
-    <!--STEP 1: Team Naming-->
-    <div class="container py-5 h-100 form-step {% if current_step == 1 %}active{% endif %}">
-      <h4 class="mb-3">Name Your Team</h4>
-      
-      <div class="mb-3">
-        <label for="team_name" class="form-label">Team Name</label>
-        <input type="text" class="form-control" id="team_name" name="team_name"
-               value="{{ session['form_data'].get('team_name', '') }}" 
-               required
-               minlength="3"
-               maxlength="50">
-        <div class="form-text">Choose a unique name for your team (3-50 characters)</div>
-      </div>
-      
-      <div class="d-flex justify-content-end mt-3">
-        <button type="submit" name="next" class="btn btn-primary">Next: Select Game</button>
-      </div>
+    <div class="progress mb-4">
+        <div class="progress-bar progress-step-{{ current_step }}"></div>
+        Step {{ current_step }} of {{ total_steps }}
     </div>
 
-    <!--STEP 2: Game Selection-->
-    <div class="container py-5 h-100 form-step {% if current_step == 2 %}active{% endif %}">
-      <h4 class="mb-3">Select Game</h4>
-      <p class="text-muted mb-3">Team: <strong>{{ session['form_data'].get('team_name') }}</strong></p>
-      
-      <div class="row">
-        {% for game in games %}
-        <div class="col-md-4 mb-4">
-          <div class="card h-100 game-card">
-            <input type="radio" name="game_id" id="game-{{ game.id }}" 
-                   value="{{ game.id }}" class="d-none"
-                   {% if session['form_data'].get('game_id') == game.id|string %}checked{% endif %}
-                   required>
-            <label for="game-{{ game.id }}" class="card-body">
-              {% if game.image %}
-              <img src="{{ url_for('static', filename=game.image.path) }}" 
-                   class="card-img-top mb-3" 
-                   alt="{{ game.title }}"
-                   style="height: 120px; object-fit: cover;">
-              {% endif %}
-              <h5 class="card-title">{{ game.title }}</h5>
-              <p class="card-text text-muted">
-                <small>Released: {{ game.release_year }}</small><br>
-                <small>{{ game.characters|length }} characters available</small>
-              </p>
-            </label>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      
-      <div class="d-flex justify-content-between mt-3">
-        <!--FIX: IT'S NOT POSSIBLE TO GO BACK UNLESS FORM IS FILLED-->
-        <button type="submit" name="previous" class="btn btn-secondary">Back to Team Name</button>
-        <button type="submit" name="next" class="btn btn-primary">Next: Select Characters</button>
-      </div>
-    </div>
-
-    <!--STEP 3: Character Selection & Customization-->
-    <div class="form-step {% if current_step == 3 %}active{% endif %}">
-      <h4 class="mb-3">Select Characters</h4>
-      <p class="text-muted mb-3">
-        Team: <strong>{{ session['form_data'].get('team_name') }}</strong> | 
-        Game: <strong>{{ selected_game.title if selected_game }}</strong>
-      </p>
-      
-      <div class="alert alert-info">
-        Select at least one character for your team. Click "Customize" to add attributes and inventory.
-      </div>
-      
-      <div class="row">
-        {% for character in characters %}
-        <div class="col-md-6 mb-4">
-          <div class="card character-card">
-            <input type="checkbox" name="characters" id="character-{{ character.id }}"
-                   value="{{ character.id }}" class="d-none"
-                   {% if character.id|string in session['form_data'].get('character_ids', []) %}checked{% endif %}>
-            <label for="character-{{ character.id }}" class="card-body">
-              <div class="d-flex align-items-center">
-                {% if character.image %}
-                <img src="{{ url_for('static', filename=character.image.path) }}" 
-                     class="rounded me-3" 
-                     width="80" 
-                     height="80"
-                     alt="{{ character.name }}"
-                     style="object-fit: cover;">
-                {% endif %}
-                <div class="flex-grow-1">
-                  <h5>{{ character.name }}</h5>
-                  <p class="text-muted mb-1">{{ character.description|truncate(100) }}</p>
-                  
-                  <!--Customization Button - Triggers Modal-->
-                  <button type="button" class="btn btn-sm btn-outline-primary mt-2"
-                          data-bs-toggle="modal" 
-                          data-bs-target="#customizeChar{{ character.id }}">
-                    <i class="fas fa-cog"></i> Customize
-                  </button>
-                </div>
-              </div>
-            </label>
-          </div>
-          
-          <!--Customization Modal-->
-          <div class="modal fade" id="customizeChar{{ character.id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Customize {{ character.name }}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-4">
-                      {% if character.image %}
-                      <img src="{{ url_for('static', filename=character.image.path) }}" 
-                           class="img-fluid rounded mb-3" 
-                           alt="{{ character.name }}">
-                      {% endif %}
-                      <h6>{{ character.name }}</h6>
-                      <p class="text-muted">{{ character.description }}</p>
-                    </div>
-                    
-                    <div class="col-md-8">
-                      <!--Attributes Section-->
-                      <div class="mb-4">
-                        <h5>Attributes</h5>
-                        <div class="row">
-                          {% for attr in attributes %}
-                          <div class="col-md-6 mb-2">
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" 
-                                     name="attributes_{{ character.id }}" 
-                                     value="{{ attr.id }}"
-                                     id="attr-{{ character.id }}-{{ attr.id }}"
-                                     {% if attr.id in session['form_data'].get('character_data', {}).get(character.id|string, {}).get('attributes', {}) %}checked{% endif %}>
-                              <label class="form-check-label" for="attr-{{ character.id }}-{{ attr.id }}">
-                                {{ attr.attribute_name }}
-                              </label>
-                              <input type="text" class="form-control form-control-sm mt-1" 
-                                     name="attr_value_{{ character.id }}_{{ attr.id }}"
-                                     placeholder="Value (optional)"
-                                     value="{{ session['form_data'].get('character_data', {}).get(character.id|string, {}).get('attributes', {}).get(attr.id|string, '') }}">
-                            </div>
-                          </div>
-                          {% endfor %}
-                        </div>
-                      </div>
-                      
-                      <!--Inventory Section-->
-                      <div class="mb-3">
-                        <h5>Inventory</h5>
-                        <div class="row">
-                          {% for item in inventory_items %}
-                          <div class="col-md-6 mb-2">
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" 
-                                     name="inventory_{{ character.id }}" 
-                                     value="{{ item.id }}"
-                                     id="inv-{{ character.id }}-{{ item.id }}"
-                                     {% if item.id in session['form_data'].get('character_data', {}).get(character.id|string, {}).get('inventory', {}) %}checked{% endif %}>
-                              <label class="form-check-label" for="inv-{{ character.id }}-{{ item.id }}">
-                                {{ item.item_name }}
-                              </label>
-                              <input type="number" class="form-control form-control-sm mt-1" 
-                                     name="item_quantity_{{ character.id }}_{{ item.id }}"
-                                     min="1" 
-                                     value="{{ session['form_data'].get('character_data', {}).get(character.id|string, {}).get('inventory', {}).get(item.id|string, 1) }}">
-                            </div>
-                          </div>
-                          {% endfor %}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-              </div>
+    {% if current_step == 1 %}
+    <!-- STEP 1: Team Naming -->
+    <div class="form-step {% if current_step == 1 %}active{% endif %}">
+        <form method="POST" action="{{ url_for('main.create_team', step=1) }}" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <h4 class="mb-3">Name Your Team</h4>
+            
+            <div class="mb-3">
+                {{ form.team_name.label(class="form-label") }}
+                {{ form.team_name(class="form-control") }}
+                {% for error in form.team_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">Choose a unique name (3-50 characters)</div>
             </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      
-      <div class="d-flex justify-content-between mt-3">
-        <button type="submit" name="previous" class="btn btn-secondary">Back to Game Selection</button>
-        <button type="submit" name="next" class="btn btn-primary">Next: Define Strategy</button>
-      </div>
+            
+            <div class="d-flex justify-content-end mt-3">
+                <button type="submit" name="next" value="2" class="btn btn-primary">
+                    Next: Select Game
+                </button>
+            </div>
+        </form>
     </div>
 
-    <!--STEP 4: Strategy Creation-->
-    <div class="form-step {% if current_step == 4 %}active{% endif %}">
-      <h4 class="mb-3">Define Team Strategy</h4>
-      <p class="text-muted mb-3">
-        Team: <strong>{{ session['form_data'].get('team_name') }}</strong> | 
-        Game: <strong>{{ selected_game.title if selected_game }}</strong> |
-        Characters: <strong>{{ session['form_data'].get('character_ids', [])|length }} selected</strong>
-      </p>
-      
-      <div class="mb-3">
-        <label for="strategy_description" class="form-label">Strategy Plan</label>
-        <textarea class="form-control" id="strategy_description" name="strategy_description"
-            rows="8" {% if current_step == 4 %}required{% else %}disabled{% endif %}>
-            {{ session['form_data'].get('strategy_description', '') }}
-        </textarea>
-        <div class="form-text">
-          Describe your team's overall strategy, including character roles and tactics.
+    {% elif current_step == 2 %}
+    <!-- STEP 2: Game Selection -->
+    <div class="form-step {% if current_step == 2 %}active{% endif %}">
+    <form method="POST" action="{{ url_for('main.create_team', step=2) }}" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <h4 class="mb-3">Select Game</h4>
+        
+        {% with messages = get_flashed_messages(category_filter=["danger"]) %}
+            {% if messages %}
+            <div class="alert alert-danger">
+                {{ messages[0] }}
+            </div>
+            {% endif %}
+        {% endwith %}
+        
+        <p class="text-muted mb-3">Team: <strong>{{ team_name }}</strong></p>
+        
+        <div class="alert alert-info">
+            {% if form.game_id.data %}
+                Currently selected: Game ID {{ form.game_id.data }}
+            {% else %}
+                Please select a game
+            {% endif %}
         </div>
-      </div>
-      
-      <div class="card mb-4">
-        <div class="card-header">
-          Selected Characters
-        </div>
-        <div class="card-body">
-          <div class="row">
-            {% for char_id in session['form_data'].get('character_ids', []) %}
-              {% set character = Character.query.get(char_id) %}
-              {% if character %}
-              <div class="col-md-4 mb-2">
-                <div class="d-flex align-items-center">
-                  {% if character.image %}
-                  <img src="{{ url_for('static', filename=character.image.path) }}" 
-                       class="rounded me-2" 
-                       width="40" 
-                       height="40"
-                       alt="{{ character.name }}"
-                       style="object-fit: cover;">
-                  {% endif %}
-                  <span>{{ character.name }}</span>
+        
+        <div class="row" id="game-selection-container">
+            {% for game in games %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 game-card {% if form.game_id.data|string == game.id|string %}selected{% endif %}"
+                     data-game-id="{{ game.id }}">
+                    <input type="radio" 
+                           name="game_id" 
+                           id="game-{{ game.id }}"
+                           value="{{ game.id }}"
+                           class="d-none"
+                           {% if form.game_id.data|string == game.id|string %}checked{% endif %}>
+                    <label for="game-{{ game.id }}" class="card-body">
+                        {% if game.image %}
+                        <img src="{{ url_for('static', filename=game.image.path) }}" 
+                            class="card-img-top mb-3" 
+                            alt="{{ game.title }}"
+                            style="height: 120px; object-fit: cover;">
+                        {% endif %}
+                        <h5 class="card-title">{{ game.title }}</h5>
+                        <p class="card-text text-muted">
+                            <small>Released: {{ game.release_year }}</small><br>
+                            <small>{{ game.characters|length }} characters available</small>
+                        </p>
+                    </label>
                 </div>
-              </div>
-              {% endif %}
+            </div>
             {% endfor %}
-          </div>
         </div>
-      </div>
-      
-      <div class="d-flex justify-content-between mt-3">
-        <button type="submit" name="previous" class="btn btn-secondary">Back to Characters</button>
-        <button type="submit" name="submit" class="btn btn-success">
-          <i class="fas fa-save"></i> Complete Team Creation
-        </button>
-      </div>
-    </div>
-  </form>
-  
-  <!--FOOTER-->
-  <div id="footer">
-    <div class="container">
-        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
-            <p class="col-md-4 mb-0 text-body-secondary">&copy; 2025 Tactical Emblem Hub</p>
         
-            <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
-            </a>
-        
-            <ul class="nav col-md-4 justify-content-end">
-            <li class="nav-item"><a href="#title_page" class="nav-link px-2 text-body-secondary">Home</a></li>
-            <li class="nav-item"><a href="#about_page" class="nav-link px-2 text-body-secondary">About</a></li>
-            <li class="nav-item"><a href="{{ url_for('main.faq') }}" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-            <li class="nav-item"><a href="{{ url_for('main.contact') }}" class="nav-link px-2 text-body-secondary">Contact</a></li>
-            </ul>
-        </footer>
+        <div class="d-flex justify-content-between mt-3">
+            <button type="submit" name="action" value="previous" class="btn btn-secondary">
+                Back to Team Name
+            </button>
+            <button type="submit" name="action" value="next" class="btn btn-primary" 
+                    {% if not form.game_id.data %}disabled{% endif %}>
+                Next: Select Characters
+            </button>
         </div>
-    </div>
+    </form>
 </div>
 
-<!--JavaScript for Form-->
-<script>
-// Debug: Check if form is submitting
-document.getElementById('teamCreationForm').addEventListener('submit', function(e) {
-    console.log('Form submitting...'); // Debug: Check browser console
-});
-// Make cards interactive
-document.addEventListener('DOMContentLoaded', function() {
-  // Handle card selection
-  document.querySelectorAll('.game-card, .character-card').forEach(card => {
-    card.addEventListener('click', function(e) {
-      if (!e.target.closest('button, input, select, textarea, a')) {
-        const input = this.querySelector('input[type="radio"], input[type="checkbox"]');
-        if (input) {
-          input.checked = !input.checked;
-          this.classList.toggle('selected', input.checked);
-        }
-      }
-    });
-  });
 
-  // Initialize selected state
-  document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
-    if (input.checked) {
-      input.closest('.game-card, .character-card')?.classList.add('selected');
-    }
-  });
-});
-</script>
 
-<style>
-/* Card selection Styles */
-.game-card, .character-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid #dee2e6;
-}
-.game-card:hover, .character-card:hover {
-  border-color: #adb5bd;
-}
-.game-card.selected, .character-card.selected {
-  border-color: #0d6efd;
-  background-color: #f8f9fa;
-}
+    {% elif current_step == 3 %}
+    <!-- STEP 3: Character Selection -->
+    <div class="form-step {% if current_step == 3 %}active{% endif %}">
+        <form method="POST" action="{{ url_for('main.create_team', step=3) }}" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <h4 class="mb-3">Select Characters</h4>
+            <p class="text-muted mb-3">
+                Team: <strong>{{ session['form_data'].get('team_name', '') }}</strong> | 
+                Game: <strong>{{ selected_game.title if selected_game else 'No game selected' }}</strong>
+            </p>
+            
+            {% with messages = get_flashed_messages(category_filter=["danger"]) %}
+                {% if messages %}
+                <div class="alert alert-danger">
+                    {{ messages[0] }}
+                </div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="alert alert-info">
+                Select at least one character for your team.
+            </div>
+            
+            <div class="row">
+                {% for subfield in form.characters %}
+                    {% with character = character_dict.get(subfield.data|string) %}
+                        {% if character %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card character-card">
+                                    {{ subfield(class="d-none") }}
+                                    <label for="{{ subfield.id }}" class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            {% if character.image %}
+                                            <img src="{{ url_for('static', filename=character.image.path) }}" 
+                                                class="rounded me-3" 
+                                                width="80" 
+                                                height="80"
+                                                alt="{{ character.name }}"
+                                                style="object-fit: cover;">
+                                            {% endif %}
+                                            <div class="flex-grow-1">
+                                                <h5>{{ character.name }}</h5>
+                                                <p class="text-muted mb-1">{{ character.description|truncate(100) }}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" 
+                                                data-bs-toggle="modal" data-bs-target="#customizeModal-{{ character.id }}">
+                                            <i class="fas fa-cog"></i> Customize
+                                        </button>
+                                    </label>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
 
-.form-step {
-  display: none;
-}
-.form-step.active {
-  display: block;
-  animation: fadeIn 0.3s;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+            <!-- Modals for customization -->
+            {% for character in characters %}
+            <div class="modal fade" id="customizeModal-{{ character.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Customize {{ character.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {% if character.image %}
+                                    <img src="{{ url_for('static', filename=character.image.path) }}" 
+                                        class="img-fluid rounded mb-3" alt="{{ character.name }}">
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <!-- Attributes Section -->
+                                    <h6>Attributes</h6>
+                                    <div class="mb-3">
+                                    {% for attr in attributes %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                            name="attributes_{{ character.id }}" 
+                                            value="{{ attr.id }}"
+                                            id="attr-{{ character.id }}-{{ attr.id }}"
+                                            {% if attr.id in session['form_data'].get('character_data', {}).get(character.id|string, {}).get('attributes', {}) %}checked{% endif %}>
+                                        <label class="form-check-label" for="attr-{{ character.id }}-{{ attr.id }}">
+                                        {{ attr.attribute_name }}
+                                        </label>
+                                        <input type="text" class="form-control form-control-sm mt-1" 
+                                            name="attr_value_{{ character.id }}_{{ attr.id }}"
+                                            placeholder="Value (optional)"
+                                            value="{{ session['form_data'].get('character_data', {}).get(character.id|string, {}).get('attributes', {}).get(attr.id|string, '') }}">
+                                    </div>
+                                    {% endfor %}
+                                    </div>
 
-/* Possibly add better animations */
-.progress-bar {
-  transition: width 0.5s ease;
-}
-.progress-bar {
-  transition: width 0.5s ease;
-}
-.progress-step-1 { width: 25%; }
-.progress-step-2 { width: 50%; }
-.progress-step-3 { width: 75%; }
-.progress-step-4 { width: 100%; }
+                                    <!-- Inventory Section -->
+                                    <h6>Inventory</h6>
+                                    <div class="mb-3">
+                                    {% for item in inventory_items %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                            name="inventory_{{ character.id }}" 
+                                            value="{{ item.id }}"
+                                            id="inv-{{ character.id }}-{{ item.id }}"
+                                            {% if item.id in session['form_data'].get('character_data', {}).get(character.id|string, {}).get('inventory', {}) %}checked{% endif %}>
+                                        <label class="form-check-label" for="inv-{{ character.id }}-{{ item.id }}">
+                                        {{ item.item_name }}
+                                        </label>
+                                        <input type="number" class="form-control form-control-sm mt-1" 
+                                            name="item_quantity_{{ character.id }}_{{ item.id }}"
+                                            min="1" value="1"
+                                            value="{{ session['form_data'].get('character_data', {}).get(character.id|string, {}).get('inventory', {}).get(item.id|string, 1) }}">
+                                    </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
-</style>
-{% endblock %}
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" name="previous" value="2" class="btn btn-secondary">
+                    Back to Game Selection
+                </button>
+                <button type="submit" name="next" value="4" class="btn btn-primary">
+                    Next: Define Strategy
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% elif current_step == 4 %}
+    <!-- STEP 4: Strategy Creation -->
+    <div class="form-step {% if current_step == 4 %}active{% endif %}">
+        <form method="POST" action="{{ url_for('main.create_team', step=4) }}" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <h4 class="mb-3">Define Team Strategy</h4>
+            <p class="text-muted mb-3">
+                Team: <strong>{{ session['form_data'].team_name if selected_name else 'No team selected' }}</strong> |
+                Game: <strong>{{ selected_game.title if selected_game else 'No game selected' }}</strong> |
+                Characters: <strong>{{ session['form_data'].character_ids|length if character_id else 'No characters selected' }}</strong>
+            </p>
+            
+            <div class="mb-3">
+                {{ form.strategy_description.label(class="form-label") }}
+                {{ form.strategy_description(class="form-control", rows=8) }}
+                {% for error in form.strategy_description.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">
+                    Describe your team's overall strategy and tactics (minimum 50 characters).
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" name="previous" value="3" class="btn btn-secondary">
+                    Back to Characters
+                </button>
+                <button type="submit" name="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Complete Team
+                </button>
+            </div>
+        </form>
+    </div>
+     {% endif %}
+</div>
+
+    <!--FOOTER-->
+    <div id="footer">
+        <div class="container">
+            <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
+                <p class="col-md-4 mb-0 text-body-secondary">&copy; 2025 Tactical Emblem Hub</p>
+            
+                <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+                </a>
+            
+                <ul class="nav col-md-4 justify-content-end">
+                <li class="nav-item"><a href="#title_page" class="nav-link px-2 text-body-secondary">Home</a></li>
+                <li class="nav-item"><a href="#about_page" class="nav-link px-2 text-body-secondary">About</a></li>
+                <li class="nav-item"><a href="{{ url_for('main.faq') }}" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+                <li class="nav-item"><a href="{{ url_for('main.contact') }}" class="nav-link px-2 text-body-secondary">Contact</a></li>
+                </ul>
+            </footer>
+            </div>
+        </div>
     
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            console.log('Game container exists:', !!document.getElementById('game-selection-container'));
+            // Only run game selection code if the container exists
+            // Game selection functionality - self-contained
+            const initGameSelection = () => {
+                const gameContainer = document.getElementById('game-selection-container');
+                if (!gameContainer) return false;
+                
+                gameContainer.addEventListener('click', function(e) {
+                    const gameCard = e.target.closest('.game-card');
+                    if (!gameCard) return;
+                    
+                    const gameId = gameCard.dataset.gameId;
+                    
+                    // Unselect all cards first
+                    document.querySelectorAll('.game-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    // Select the clicked card
+                    gameCard.classList.add('selected');
+                    
+                    // Update the radio button
+                    const radio = document.getElementById(`game-${gameId}`);
+                    if (radio) radio.checked = true;
+                    
+                    // Enable the next button
+                    const nextBtn = document.querySelector('button[name="action"][value="next"]');
+                    if (nextBtn) nextBtn.disabled = false;
+                });
+                
+                return true;
+            };
+
+            // Initialize game selection if on that step
+            initGameSelection();
+
+            // Attribute/Inventory toggling (runs on all steps)
+            document.querySelectorAll('[id^="attr-"], [id^="inv-"]').forEach(checkbox => {
+                const parts = checkbox.id.split('-').slice(1);
+                const valueInput = document.querySelector(`[name="attr_value_${parts.join('_')}"]`) || 
+                                document.querySelector(`[name="item_quantity_${parts.join('_')}"]`);
+                
+                const updateInputState = () => {
+                    if (valueInput) {
+                        valueInput.disabled = !checkbox.checked;
+                        if (!checkbox.checked) {
+                            valueInput.value = valueInput.dataset.default || '';
+                        }
+                    }
+                };
+                
+                checkbox.addEventListener('change', updateInputState);
+                updateInputState();
+            });
+        });
+    </script>
+
+    <style>
+        .form-step {
+                display: none;
+            }
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .game-card, .character-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #dee2e6;
+        }
+        .game-card:hover, .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .game-card input[type="radio"]:checked + label,
+        .character-card input[type="checkbox"]:checked + label {
+            background-color: #f8f9fa;
+            border-color: #0d6efd;
+        }
+
+        /* Possibly add better animations */
+        .progress-bar {
+        transition: width 0.5s ease;
+        }
+        .progress-bar {
+        transition: width 0.5s ease;
+        }
+        .progress-step-1 { width: 25%; }
+        .progress-step-2 { width: 50%; }
+        .progress-step-3 { width: 75%; }
+        .progress-step-4 { width: 100%; }
+
+    </style>    
+
 </body>
+{% endblock %}

@@ -13,6 +13,8 @@ import sqlalchemy as sa
 from config import Config
 from flask import current_app
 from datetime import datetime, timezone
+from .forms import TeamInfoForm, GameSelectionForm, CharacterSelectionForm, StrategyForm
+from sqlalchemy import exc
 
 bp = Blueprint('main', __name__)
 
@@ -274,207 +276,246 @@ def delete_account(username):
     
     return redirect(url_for('main.index'))
 
-# CREATE TEAM
-@bp.route('/create-team', methods=['GET', 'POST'])
-@login_required 
-def create_team():
-    """
-    Multi-step team creation process:
-    1. Team naming
-    2. Game selection
-    3. Character selection with attributes/inventory
-    4. Strategy creation
-    """
-    
-    # Initialize session data if this is the first step
+@bp.route('/create-team/<int:step>', methods=['GET', 'POST'])
+@login_required
+def create_team(step):
+    # Initialize session data with all pf the required keys
     if 'form_data' not in session:
-        session['form_data'] = {'user_id': current_user.id}  # Store the current user ID
+        session['form_data'] = {
+            'user_id': current_user.id,
+            'step1': {},  # Team Name/info
+            'step2': {},  # Game selection
+            'step3': {},  # Character selection
+            'step4': {}   # Strategy
+        }
+    else:
+        # Ensure all keys exist even if session exists
+        session['form_data'].setdefault('step1', {})
+        session['form_data'].setdefault('step2', {})
+        session['form_data'].setdefault('step3', {})
+        session['form_data'].setdefault('step4', {})
     
-    # Get current step from query parameters, default to step 1
-    current_step = request.args.get('step', default=1, type=int)
+    # Initialize template variables
+    template_vars = {
+        'current_step': step,
+        'total_steps': 4,
+        'games': None,
+        'selected_game': None,
+        'characters': None,
+        'attributes': None,
+        'inventory_items': None,
+        'team_name': session['form_data']['step1'].get('team_name', '')
+    }
+
+    # Step 1: Team Info
+    if step == 1:
+        form = TeamInfoForm(data=session['form_data']['step1'])
+        if form.validate_on_submit():
+            session['form_data']['step1'] = {
+                'team_name': form.team_name.data
+            }
+            session.modified = True
+            return redirect(url_for('main.create_team', step=2))
     
-    # Handle form submissions
-    if request.method == 'POST':
-        form_data = session['form_data']
-        
-        # STEP 1: Team naming
-        if current_step == 1:
-            form_data['team_name'] = request.form.get('team_name')
-        
-        # STEP 2: Game selection
-        elif current_step == 2:
-            form_data['game_id'] = request.form.get('game_id')
-        
-        # STEP 3: Character selection with customization
-        elif current_step == 3:
-            # Get list of selected character IDs
-            form_data['character_ids'] = request.form.getlist('characters')
-            form_data['character_data'] = {}
-            
-            # Store attributes and inventory for each character
-            for char_id in form_data['character_ids']:
-                form_data['character_data'][char_id] = {
-                    # Dictionary of attribute IDs and their values
-                    'attributes': {
-                        attr_id: request.form.get(f'attr_value_{char_id}_{attr_id}')
-                        for attr_id in request.form.getlist(f'attributes_{char_id}')
-                    },
-                    # Dictionary of inventory item IDs and quantities
-                    'inventory': {
-                        item_id: request.form.get(f'item_quantity_{char_id}_{item_id}', default=1)
-                        for item_id in request.form.getlist(f'inventory_{char_id}')
-                    }
-                }
-        
-        # STEP 4: Strategy creation (final step)
-        elif current_step == 4:
-            form_data['strategy_description'] = request.form.get('strategy_description')
-            # Process the complete form when reaching the final step
-            return process_final_team_submission()
-        
-        # Update session data with new form data
-        session['form_data'] = form_data
-        
-        # Handle the navigation between steps
-        if 'next' in request.form and current_step < 4:
-            # Move to next step
-            return redirect(url_for('main.create_team', step=current_step+1))
-        elif 'previous' in request.form and current_step > 1:
-            # Return to previous step
-            return redirect(url_for('main.create_team', step=current_step-1))
-    
-    # GET request handling (display appropriate step)
-    
-    # STEP 1: Team naming form
-    if current_step == 1:
-        return render_template('create_team/create_team.html', 
-                            current_step=current_step)
-    
-    # STEP 2: Game selection (requires team name from step 1)
-    # Fix: DO not allow selection of multiple games. Not currently able to go back to team if selection
-    # game is not chosen
-    elif current_step == 2:
-        if 'team_name' not in session['form_data']:
-            # Redirect if trying to access step 2 without completing step 1
-            return redirect(url_for('main.create_team', step=1))
-        
-        # Get all games for selection
+    # Step 2: Game Selection
+    elif step == 2:
+        form = GameSelectionForm()
         games = Game.query.order_by(Game.title).all()
-        return render_template('create_team/create_team.html',
-                            current_step=current_step,
-                            games=games)
+        form.game_id.choices = [(g.id, g.title) for g in games]
+        
+        # Pre-populate form if returning to this step
+        if 'game_id' in session['form_data']['step2']:
+            form.game_id.data = session['form_data']['step2']['game_id']
+        
+        if form.validate_on_submit():
+            session['form_data']['step2'] = {
+                'game_id': form.game_id.data
+            }
+            session.modified = True
+            return redirect(url_for('main.create_team', step=3))
+        
+        template_vars['games'] = games
     
-    # STEP 3: Character selection (requires game selection from step 2)
-    elif current_step == 3:
-        if 'game_id' not in session['form_data']:
-            # Redirect if trying to access step 3 without completing step 2
+    # Step 3: Character Selection
+    elif step == 3:
+        if 'step2' not in session['form_data']:
             return redirect(url_for('main.create_team', step=2))
             
-        # Get related data based on selected game
-        game_id = session['form_data']['game_id']
+        game_id = session['form_data']['step2']['game_id']
+        selected_game = Game.query.get(game_id)
         characters = Character.query.filter_by(game_id=game_id).order_by(Character.name).all()
         attributes = Attribute.query.order_by(Attribute.attribute_name).all()
         inventory_items = Inventory_Item.query.order_by(Inventory_Item.item_name).all()
         
-        return render_template('create_team/create_team.html',
-                            current_step=current_step,
-                            characters=characters,
-                            attributes=attributes,
-                            inventory_items=inventory_items)
-    
-    # STEP 4: Strategy creation (requires character selection from step 3)
-    elif current_step == 4:
-        if 'character_ids' not in session['form_data'] or not session['form_data']['character_ids']:
-            # Redirect if trying to access step 4 without selecting characters
-            return redirect(url_for('create_team', step=3))
+        # Create character dictionary for easy lookup
+        character_dict = {str(c.id): c for c in characters}
         
-        return render_template('create_team/create_team.html',
-                            current_step=current_step)
+        form = CharacterSelectionForm()
+        form.characters.choices = [(c.id, c.name) for c in characters]
+        
+        if 'step3' in session['form_data']:
+            form.characters.data = session['form_data']['step3'].get('character_ids', [])
+        
+        if form.validate_on_submit():
+            session['form_data']['step3'] = {
+                'character_ids': form.characters.data,
+                'character_data': {}
+            }
+            return redirect(url_for('main.create_team', step=4))
+        
+        # Update template_vars with character_dict
+        template_vars.update({
+            'selected_game': selected_game,
+            'characters': characters,
+            'character_dict': character_dict,  
+            'attributes': attributes,
+            'inventory_items': inventory_items
+        })
     
+    
+    # Step 4: Strategy
+    elif step == 4:
+        if 'step3' not in session['form_data']:
+            return redirect(url_for('main.create_team', step=3))
+            
+        form = StrategyForm(data=session['form_data'].get('step4', {}))
+        
+        if form.validate_on_submit():
+            session['form_data']['step4'] = {'strategy_description': form.strategy_description.data}
+            return process_final_team_submission()
+        
+    if step > 1:
+        template_vars['team_name'] = session['form_data']['step1'].get('team_name', 'Unknown Team')
+    
+    return render_template('create_team/create_team.html', form=form, **template_vars)
+    
+    # return render_template('create_team/create_team.html',
+    #                     form=form,
+    #                     current_step=step,
+    #                     total_steps=4,
+    #                     games=games,
+    #                     selected_game=selected_game,
+    #                     characters=characters,
+    #                     attributes=attributes,
+    #                     inventory_items=inventory_items)
+
 def process_final_team_submission():
+    # Check session exists before moving forward
     if 'form_data' not in session:
         flash('Session expired. Please start again.', 'danger')
         return redirect(url_for('main.create_team'))
     
-    form_data = session.pop('form_data')
-    
     try:
-        # Verify required data exists
+        # Get and validate form data
+        form_data = session.pop('form_data')
         required_fields = ['user_id', 'team_name', 'game_id', 'character_ids', 'strategy_description']
+        
         if not all(key in form_data for key in required_fields):
-            flash('Missing required data', 'danger')
+            flash('Missing required team information', 'danger')
             return redirect(url_for('main.create_team'))
         
-        # Create the team
-        team = Team(
-            team_name=form_data['team_name'],
-            game_id=form_data['game_id'],
-            created_at=datetime.now(timezone.utc)
-        )
-        db.session.add(team)
-        db.session.flush()  # Get the team ID
+        # Validate character_ids is a non-empty list
+        if not isinstance(form_data['character_ids'], list) or len(form_data['character_ids']) == 0:
+            flash('No characters selected for the team', 'danger')
+            return redirect(url_for('main.create_team', step=3))
         
-        # Create UserTeam association
-        user_team = User_Team(
-            user_id=form_data['user_id'],
-            team_id=team.id,
-            created_at=datetime.now(timezone.utc)
-        )
-        db.session.add(user_team)
-        
-        # Create Strategy
-        strategy = Strategy(
-            team_id=team.id,
-            description=form_data['strategy_description'],
-            created_at=datetime.now(timezone.utc)
-        )
-        db.session.add(strategy)
-        
-        # Add characters to team and their attributes/inventory
-        for char_id in form_data['character_ids']:
-            # Create TeamCharacter association
-            team_char = Team_Character(
-                team_id=team.id,
-                character_id=int(char_id),
+        # Begin transaction
+        with db.session.begin_nested():
+            # Create the team
+            team = Team(
+                team_name=form_data['team_name'],
+                game_id=form_data['game_id'],
                 created_at=datetime.now(timezone.utc)
             )
-            db.session.add(team_char)
+            db.session.add(team)
+            db.session.flush()  # Get team ID without committing
             
-            # Add character attributes
-            char_data = form_data.get('character_data', {}).get(char_id, {})
-            for attr_id, attr_value in char_data.get('attributes', {}).items():
-                char_attr = Character_Attribute(
-                    character_id=int(char_id),
-                    attribute_id=int(attr_id),
-                    attribute_value=attr_value if attr_value else None,
-                    created_at=datetime.now(timezone.utc)
-                )
-                db.session.add(char_attr)
+            # Create UserTeam association
+            db.session.add(User_Team(
+                user_id=form_data['user_id'],
+                team_id=team.id,
+                created_at=datetime.now(timezone.utc)
+            ))
             
-            # Add character inventory
-            for item_id, quantity in char_data.get('inventory', {}).items():
-                char_inv = Character_Inventory(
+            # Create Strategy
+            db.session.add(Strategy(
+                team_id=team.id,
+                description=form_data['strategy_description'],
+                created_at=datetime.now(timezone.utc)
+            ))
+            
+            # Process characters and their attributes/inventory
+            for char_id in form_data['character_ids']:
+                # Validate character exists
+                if not Character.query.get(char_id):
+                    raise ValueError(f"Invalid character ID: {char_id}")
+                
+                # Add team-character relationship
+                db.session.add(Team_Character(
+                    team_id=team.id,
                     character_id=int(char_id),
-                    inventory_item_id=int(item_id),
-                    quantity=int(quantity),
                     created_at=datetime.now(timezone.utc)
-                )
-                db.session.add(char_inv)
+                ))
+                
+                # Process attributes if they exist
+                char_data = form_data.get('character_data', {}).get(str(char_id), {})
+                
+                for attr_id, attr_value in char_data.get('attributes', {}).items():
+                    if not Attribute.query.get(attr_id):
+                        continue  # Skip invalid attributes
+                    db.session.add(Character_Attribute(
+                        character_id=int(char_id),
+                        attribute_id=int(attr_id),
+                        attribute_value=attr_value if attr_value else None,
+                        created_at=datetime.now(timezone.utc)
+                    ))
+                
+                # Process inventory if it exists
+                for item_id, quantity in char_data.get('inventory', {}).items():
+                    if not Inventory_Item.query.get(item_id):
+                        continue  # Skip invalid items
+                    db.session.add(Character_Inventory(
+                        character_id=int(char_id),
+                        inventory_item_id=int(item_id),
+                        quantity=max(1, int(quantity)),  # Min. quantity of 1
+                        created_at=datetime.now(timezone.utc)
+                    ))
+        
         
         db.session.commit()
         
-        flash(f'Team "{team.team_name}" created successfully with strategy!', 'success')
-        # return redirect(url_for('view_team', team_id=team.id))
-        return redirect(url_for('main.index'))
+        flash(f'Team "{team.team_name}" created successfully!', 'success')
+        return redirect(url_for('main.team_detail', team_id=team.id))
+    
+    except ValueError as e:
+        db.session.rollback()
+        current_app.logger.error(f"Validation error: {str(e)}")
+        flash('Invalid team data. Please check your selections.', 'danger')
+        return redirect(url_for('main.create_team', step=3))
+    
+    except exc.SQLAlchemyError as e:
+        db.session.rollback()
+        current_app.logger.error(f"Database error creating team: {str(e)}")
+        flash('A database error occurred. Please try again.', 'danger')
+        return redirect(url_for('main.create_team'))
     
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error creating team: {str(e)}")
-        flash('An error occurred while creating your team. Please try again.', 'danger')
+        current_app.logger.error(f"Unexpected error creating team: {str(e)}", exc_info=True)
+        flash('An unexpected error occurred. Please try again.', 'danger')
         return redirect(url_for('main.create_team'))
+    
 
 # EDIT TEAM
 # THIS SHOULD BE IN EDIT PROFILE
+"""
+Make new form/card in edit profile that, 
+after pressing a team card, redirects user to edit form for team 
+(use team creation form)
+
+Each team card will have an edit/delete button.
+"""
+
 
 # DELETE TEAM
 # THIS SHOULD BE IN EDIT PROFILE
